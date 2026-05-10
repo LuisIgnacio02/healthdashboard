@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Dashboard · Luis Ignacio Cepeda Morales</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23b04a2a'/><path d='M4 17 H10 L12 13 L14 21 L16 14 L17 18 H28' stroke='white' stroke-width='2.8' fill='none' stroke-linejoin='miter' stroke-linecap='butt'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0ebdd;--surface:#fdfbf7;--surface-2:#e8e1d1;--surface-3:#d1c7b3;
+  --t1:#2a251f;--t2:#4a443b;--t3:#6b6357;--t4:#8a8377;
+  --border:#2a251f;
+  --accent:#b04a2a;--accent-bg:rgba(176,74,42,0.1);--accent-bd:rgba(176,74,42,0.4);
+  --blue:#2c5282;--blue-bg:rgba(44,82,130,0.1);--blue-bd:rgba(44,82,130,0.4);
+  --green:#15803d;--green-bg:rgba(21,128,61,0.1);--green-bd:rgba(21,128,61,0.4);
+  --gold:#a16207;--gold-bg:rgba(161,98,7,0.1);--gold-bd:rgba(161,98,7,0.4);
+  --purple:#5b4cc4;--purple-bg:rgba(91,76,196,0.1);--purple-bd:rgba(91,76,196,0.4);
+  --red:#b91c1c;--red-bg:rgba(185,28,28,0.1);--red-bd:rgba(185,28,28,0.4);
+  --teal:#0d7d8e;--teal-bg:rgba(13,125,142,0.1);--teal-bd:rgba(13,125,142,0.4);
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --serif:'Fraunces',Georgia,serif;
+  --shm:4px 4px 0px rgba(42,37,31,0.15);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t1);font-family:var(--sans);font-size:14px;min-height:100vh}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border)}
+.g-header{background:var(--bg);border-bottom:3px solid var(--border);border-top:3px solid var(--border);padding:10px 32px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:20px;height:85px}
+.hdr-brand{display:flex;flex-direction:column;justify-content:center}
+.brand-meta{font-size:10px;color:var(--t3);letter-spacing:0.15em;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:2px;margin-bottom:4px;font-weight:700}
+.brand-name{font-family:var(--serif);font-size:30px;font-style:italic;letter-spacing:-0.02em;color:var(--t1);line-height:1.1}
+.hdr-stats{display:flex;height:100%;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.hdr-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 22px;border-right:1px solid var(--border);height:100%;min-width:90px}
+.hdr-stat:last-child{border-right:none}
+.hdr-stat-n{font-family:var(--serif);font-size:28px;color:var(--t1);line-height:1}
+.hdr-stat-l{font-size:9px;color:var(--t2);letter-spacing:0.1em;margin-top:4px;text-transform:uppercase;font-weight:700}
+.btn{border-radius:0;padding:8px 16px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.05em;transition:all .15s;border:1px solid var(--border);text-transform:uppercase;box-shadow:2px 2px 0px var(--border);font-family:var(--sans)}
+.btn-p{background:var(--t1);color:var(--bg)}
+.btn-p:hover{background:var(--accent);transform:translate(1px,1px);box-shadow:1px 1px 0px var(--border)}
+.btn-g{background:var(--surface);color:var(--t1)}
+.btn-g:hover{background:var(--surface-2);transform:translate(1px,1px);box-shadow:1px 1px 0px var(--border)}
+.phase-selector{background:var(--surface-2);border-bottom:2px solid var(--border);padding:0 32px;display:flex;align-items:stretch;overflow-x:auto}
+.phase-btn{flex:1;min-width:170px;padding:12px 14px;background:transparent;border:none;border-right:1px solid var(--border);cursor:pointer;text-align:left;transition:background .15s;display:flex;flex-direction:column;gap:2px;font-family:var(--sans);position:relative}
+.phase-btn:last-child{border-right:none}
+.phase-btn:hover{background:var(--surface-3)}
+.phase-btn.active{background:var(--t1);color:var(--bg)}
+.phase-btn.active .pb-num,.phase-btn.active .pb-name,.phase-btn.active .pb-dates{color:var(--bg)}
+.pb-num{font-family:var(--serif);font-size:11px;font-style:italic;color:var(--t4);letter-spacing:0.1em}
+.pb-name{font-family:var(--serif);font-size:17px;font-style:italic;color:var(--t1);line-height:1.15}
+.pb-dates{font-size:10px;font-family:var(--mono);color:var(--t3);margin-top:1px}
+.pb-active{position:absolute;top:6px;right:8px;font-size:8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:2px 5px;background:var(--green);color:#fff;border:1px solid var(--green);display:none}
+.pb-active.show{display:block}
+.main-layout{display:grid;grid-template-columns:1fr 320px;max-width:1600px;margin:0 auto;min-height:calc(100vh - 85px - 60px)}
+.content-col{padding:24px 28px 60px;background:var(--bg);overflow-x:hidden;min-width:0}
+.sidebar-col{border-left:3px solid var(--border);background:var(--surface-2);padding:22px 18px 60px;position:sticky;top:85px;align-self:flex-start;max-height:calc(100vh - 85px);overflow-y:auto}
+.sb-block{margin-bottom:22px;padding-bottom:20px;border-bottom:2px solid var(--border)}
+.sb-block:last-child{border-bottom:none;margin-bottom:0}
+.sb-label{font-size:10px;color:var(--t1);letter-spacing:0.13em;text-transform:uppercase;margin-bottom:9px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:4px;display:inline-block}
+.sb-phase-name{font-family:var(--serif);font-size:21px;font-style:italic;color:var(--t1);line-height:1.2;margin-bottom:5px}
+.sb-phase-meta{font-size:11px;color:var(--t3);font-family:var(--mono);margin-bottom:10px}
+.sb-progress{margin:10px 0 14px}
+.sb-progress-row{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-bottom:4px;font-family:var(--mono)}
+.sb-progress-bar{height:6px;background:var(--surface);border:1px solid var(--border)}
+.sb-progress-fill{height:100%;background:var(--accent);transition:width .6s}
+.sb-objectives{list-style:none;padding:0;margin:0}
+.sb-objectives li{font-size:12px;color:var(--t2);line-height:1.55;padding:7px 0 7px 14px;position:relative;border-bottom:1px dashed var(--border)}
+.sb-objectives li:last-child{border-bottom:none;padding-bottom:0}
+.sb-objectives li::before{content:'›';position:absolute;left:0;color:var(--accent);font-weight:700;font-size:14px;top:6px}
+.sb-today-card{background:var(--accent);border:1px solid var(--accent);box-shadow:2px 2px 0px var(--border);padding:11px 13px;cursor:pointer;transition:transform .12s;color:#fff}
+.sb-today-card:hover{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--border)}
+.sb-today-day{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:3px}
+.sb-today-title{font-family:var(--serif);font-size:17px;font-style:italic;color:#fff;line-height:1.2}
+.sb-today-sub{font-size:11px;color:rgba(255,255,255,0.85);margin-top:4px;font-family:var(--mono)}
+.sb-week-list{display:flex;flex-direction:column;border:1px solid var(--border);background:var(--surface)}
+.sb-week-row{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:8px;padding:7px 11px;border-bottom:1px dashed var(--border);cursor:pointer;font-size:12px;transition:background .12s}
+.sb-week-row:last-child{border-bottom:none}
+.sb-week-row:hover{background:var(--surface-2)}
+.sb-week-row.today{background:var(--accent);color:#fff}
+.sb-week-row.today .sb-wd-name,.sb-week-row.today .sb-wd-lbl,.sb-week-row.today .sb-wd-dot{color:#fff}
+.sb-wd-lbl{font-size:10px;font-weight:700;color:var(--t4);letter-spacing:0.1em;text-transform:uppercase}
+.sb-wd-name{color:var(--t2);font-weight:500}
+.sb-wd-dot{font-size:10px;color:var(--t4)}
+.sb-edit-row{margin-top:12px;text-align:right}
+.sub-tabs-row{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.sub-tabs-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t4);margin-right:6px}
+.sub-tab{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:6px 12px;border:1px solid var(--border);background:var(--surface);color:var(--t3);cursor:pointer;transition:all .12s;box-shadow:1px 1px 0px var(--border);user-select:none;font-family:var(--sans)}
+.sub-tab:hover{background:var(--surface-2)}
+.sub-tab.active{background:var(--t1);color:var(--bg);box-shadow:none;transform:translate(1px,1px)}
+.sub-tab.taper.active{background:var(--gold);border-color:var(--gold);color:#fff}
+.sub-tab.post.active{background:var(--green);border-color:var(--green);color:#fff}
+.sub-tab-sep{width:1px;background:var(--border);align-self:stretch;margin:0 4px}
+.day-tabs{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+.day-tab{background:var(--surface);border:1px solid var(--border);padding:9px 6px;cursor:pointer;text-align:center;transition:all .12s;user-select:none;position:relative}
+.day-tab:hover{background:var(--surface-2)}
+.day-tab.today{border-color:var(--accent);border-width:2px;padding:8px 5px}
+.day-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.day-tab.active .dt-lbl,.day-tab.active .dt-type{color:#fff}
+.day-tab.active .dt-badge{background:rgba(255,255,255,0.18)!important;color:#fff!important;border-color:rgba(255,255,255,0.5)!important}
+.dt-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--t4);margin-bottom:4px;font-weight:700}
+.dt-type{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:4px;line-height:1.15}
+.dt-badge{display:inline-block;font-size:8px;padding:2px 6px;border:1px solid;font-weight:700;letter-spacing:0.05em;text-transform:uppercase}
+.badge-hyp,.ex-type.hyp{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-bd)}
+.badge-str,.ex-type.compound{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bd)}
+.ex-type.isolation{background:var(--gold-bg);color:var(--gold);border-color:var(--gold-bd)}
+.ex-type.bw{background:var(--surface-2);color:var(--t2);border-color:var(--border)}
+.badge-pwr,.ex-type.power{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-bd)}
+.badge-z2,.ex-type.z2{background:var(--green-bg);color:var(--green);border-color:var(--green-bd)}
+.badge-hiit,.ex-type.hiit,.ex-type.tempo{background:var(--red-bg);color:var(--red);border-color:var(--red-bd)}
+.badge-tennis,.badge-choice,.ex-type.tennis{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-bd)}
+.badge-mant{background:var(--gold-bg);color:var(--gold);border-color:var(--gold-bd)}
+.badge-rest,.ex-type.walk{background:var(--surface-2);color:var(--t3);border-color:var(--t4)}
+.badge-race,.ex-type.race{background:var(--gold-bg);color:var(--gold);border-color:var(--gold-bd)}
+.sec-label{display:flex;align-items:center;gap:10px;margin:0 0 14px;flex-wrap:wrap;border-bottom:2px solid var(--border);padding-bottom:10px}
+.sec-label-text{font-family:var(--serif);font-size:24px;font-style:italic;color:var(--t1);line-height:1.15;flex:1;min-width:0}
+.stim-tag{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border:1px solid;flex-shrink:0}
+.stim-hyper{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-bd)}
+.stim-strength{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bd)}
+.stim-power{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-bd)}
+.stim-z2{background:var(--green-bg);color:var(--green);border-color:var(--green-bd)}
+.stim-hiit{background:var(--red-bg);color:var(--red);border-color:var(--red-bd)}
+.stim-tennis,.stim-choice{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-bd)}
+.stim-mant{background:var(--gold-bg);color:var(--gold);border-color:var(--gold-bd)}
+.stim-rest{background:var(--surface-2);color:var(--t3);border-color:var(--border)}
+.stim-race{background:var(--gold-bg);color:var(--gold);border-color:var(--gold-bd)}
+.warmup-box{background:var(--surface-2);border:1px solid var(--border);padding:11px 14px;margin-bottom:14px}
+.warmup-title{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--t4);margin-bottom:7px}
+.warmup-row{display:flex;justify-content:space-between;font-size:13px;color:var(--t2);padding:4px 0;border-bottom:1px dashed var(--border)}
+.warmup-row:last-child{border-bottom:none}
+.warmup-time{font-family:var(--mono);font-size:11px;color:var(--t3);flex-shrink:0;margin-left:14px}
+.ex-card{background:var(--surface);border:1px solid var(--border);margin-bottom:6px;transition:transform .1s,box-shadow .1s}
+.ex-card:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(42,37,31,0.18)}
+.ex-main{display:flex;align-items:flex-start;padding:11px 14px;gap:11px}
+.ex-type{font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 0;border:1px solid;white-space:nowrap;margin-top:2px;flex-shrink:0;width:84px;text-align:center}
+.ex-body{flex:1;min-width:0}
+.ex-name{font-size:15px;font-weight:600;color:var(--t1);line-height:1.25;margin-bottom:5px}
+.ex-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px}
+.ex-sets{font-family:var(--mono);font-size:13px;color:var(--t2);font-weight:500}
+.rpe-chip{font-size:10px;font-weight:700;font-family:var(--mono);padding:2px 7px;border:1px solid}
+.rpe-hi{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-bd)}
+.rpe-mid{background:var(--gold-bg);color:var(--gold);border-color:var(--gold-bd)}
+.rpe-lo{background:var(--green-bg);color:var(--green);border-color:var(--green-bd)}
+.rest-chip{font-size:10px;font-weight:600;padding:2px 7px;background:var(--surface-2);border:1px solid var(--border);color:var(--t3)}
+.ex-note{font-size:12px;color:var(--t3);font-family:var(--serif);font-style:italic;line-height:1.45}
+.session-time{display:inline-block;font-size:11px;font-weight:700;font-family:var(--mono);padding:5px 11px;background:var(--surface-2);border:1px solid var(--border);margin-top:14px;color:var(--t3)}
+details.opt-b{margin-top:14px}
+details.opt-b summary{list-style:none;cursor:pointer;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--t4);padding:6px 11px;border:1px dashed var(--border);display:inline-flex;align-items:center;gap:6px;user-select:none}
+details.opt-b summary::-webkit-details-marker{display:none}
+details.opt-b summary::before{content:'↓'}
+details.opt-b[open] summary::before{content:'↑'}
+details.opt-b summary:hover{border-style:solid;background:var(--surface-2)}
+.opt-b-content{margin-top:8px;background:var(--surface-2);border:1px dashed var(--border);padding:12px 14px;font-size:12px;color:var(--t2);line-height:1.55}
+.opt-b-content strong{color:var(--t1);font-weight:700}
+.section-header{font-family:var(--serif);font-size:28px;font-style:italic;color:var(--t1);margin-bottom:6px}
+.section-sub{font-size:12px;color:var(--t3);font-style:italic;font-family:var(--serif);margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid var(--border)}
+.section-sub a{color:var(--accent);font-style:normal;font-weight:600;text-decoration:underline}
+.metric-row{margin-bottom:14px;padding-bottom:14px;border-bottom:1px dashed var(--border)}
+.metric-row:last-child{border-bottom:none}
+.metric-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;flex-wrap:wrap;gap:8px}
+.metric-name{font-size:14px;font-weight:600;color:var(--t1)}
+.metric-vals{font-size:13px;color:var(--t3);font-family:var(--mono)}
+.metric-bar-bg{height:9px;background:var(--surface-2);border:1px solid var(--border);overflow:hidden}
+.metric-bar-fill{height:100%;transition:width .6s}
+.metric-status{font-size:11px;margin-top:4px;font-weight:600}
+.st-ok{color:var(--green)}.st-warn{color:var(--gold)}.st-crit{color:var(--red)}
+.priority-tag{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:2px 7px;border:1px solid;margin-left:8px;vertical-align:middle}
+.p1{background:var(--red-bg);color:var(--red);border-color:var(--red-bd)}
+.p2{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-bd)}
+.p3{background:var(--gold-bg);color:var(--gold);border-color:var(--gold-bd)}
+.p-ok{background:var(--green-bg);color:var(--green);border-color:var(--green-bd)}
+.metric-note{font-size:11px;color:var(--t3);margin-top:4px;font-family:var(--serif);font-style:italic}
+.info-panel{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shm);padding:14px 16px;margin-bottom:10px}
+.info-panel-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--t3);margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed var(--border)}
+.info-panel-body{font-size:13px;color:var(--t2);line-height:1.55}
+.info-panel-body strong{color:var(--t1);font-weight:700}
+.info-panel.warn{background:var(--accent-bg);border-color:var(--accent-bd)}
+.info-panel.warn .info-panel-title{color:var(--accent)}
+.view-tabs{display:flex;gap:4px;margin-bottom:18px}
+.view-tab{font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:7px 14px;border:1px solid var(--border);background:var(--surface);color:var(--t2);cursor:pointer;font-family:var(--sans);box-shadow:2px 2px 0px var(--border)}
+.view-tab:hover{background:var(--surface-2);transform:translate(1px,1px);box-shadow:1px 1px 0 var(--border)}
+.view-tab.active{background:var(--t1);color:var(--bg);box-shadow:none;transform:translate(2px,2px)}
+.main-section{display:none}.main-section.active{display:block}
+.overlay{position:fixed;inset:0;background:rgba(42,37,31,.7);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;backdrop-filter:blur(2px)}
+.overlay.open{display:flex}
+.modal{background:var(--bg);border:2px solid var(--border);padding:28px 32px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:8px 8px 0px var(--border)}
+.modal-sup{font-size:11px;color:var(--accent);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:4px;display:inline-block}
+.modal-title{font-family:var(--serif);font-size:28px;color:var(--t1);margin-bottom:18px;font-style:italic}
+.m-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.m-fg{display:flex;flex-direction:column}
+.m-lbl{font-size:10px;color:var(--t1);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:5px;font-weight:700}
+.m-input{background:var(--surface);border:1px solid var(--border);color:var(--t1);font-family:var(--mono);font-size:14px;padding:8px 11px;outline:none}
+.m-input:focus{border-color:var(--accent);background:#fff}
+.m-target{font-size:10px;color:var(--t4);margin-top:3px;font-family:var(--mono)}
+.m-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:20px;padding-top:18px;border-top:2px solid var(--border)}
+.m-note{font-size:11px;color:var(--t3);font-family:var(--serif);font-style:italic;margin-bottom:14px;line-height:1.55}
+@media(max-width:1080px){.main-layout{grid-template-columns:1fr}.sidebar-col{position:static;border-left:none;border-top:3px solid var(--border);max-height:none}}
+@media(max-width:680px){.g-header{padding:10px 18px;flex-wrap:wrap;height:auto;min-height:72px}.hdr-stats{display:none}.content-col{padding:18px 16px 40px}.phase-selector{padding:0 16px}.phase-btn{min-width:140px}.m-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="g-header">
+  <div class="hdr-brand">
+    <div class="brand-meta" id="hdr-date">Cargando…</div>
+    <div class="brand-name">Health Dashboard</div>
+  </div>
+  <div class="hdr-stats">
+    <div class="hdr-stat"><div class="hdr-stat-n" id="stat-rotation">—</div><div class="hdr-stat-l">Días Houston</div></div>
+    <div class="hdr-stat"><div class="hdr-stat-n" id="stat-race">—</div><div class="hdr-stat-l">Días a carrera</div></div>
+    <div class="hdr-stat"><div class="hdr-stat-n" id="stat-week">A</div><div class="hdr-stat-l">Semana</div></div>
+  </div>
+  <div><button class="btn btn-g" onclick="openMetricsModal()">Update Metrics</button></div>
+</header>
+<div class="phase-selector" id="phase-selector"></div>
+<div class="main-layout">
+  <div class="content-col">
+    <div class="view-tabs">
+      <button class="view-tab active" onclick="setView('plan',this)">Plan de la fase</button>
+      <button class="view-tab" onclick="setView('metricas',this)">Métricas Bevel</button>
+    </div>
+    <div id="view-plan" class="main-section active">
+      <div class="sub-tabs-row" id="houston-subtabs">
+        <span class="sub-tabs-label">Semana:</span>
+        <button class="sub-tab active" onclick="setWeek('wa',this)">A · Upper y Lower A+B</button>
+        <button class="sub-tab" onclick="setWeek('wb',this)">B · Lower y Upper B+A</button>
+        <div class="sub-tab-sep"></div>
+        <button class="sub-tab taper" onclick="setWeek('rt',this)">Race Taper · 25 a 30 may</button>
+        <button class="sub-tab post" onclick="setWeek('pr',this)">Post-Carrera · 1 a 7 jun</button>
+      </div>
+      <div class="day-tabs" id="day-tabs"></div>
+      <div id="day-content"></div>
+    </div>
+    <div id="view-metricas" class="main-section">
+      <div class="section-header">Métricas Bevel</div>
+      <div class="section-sub">Actual vs Objetivo · Datos guardados localmente · <a href="#" onclick="openMetricsModal();return false">Editar valores</a></div>
+      <div class="info-panel warn" style="margin-bottom:18px">
+        <div class="info-panel-title">Diagnóstico</div>
+        <div class="info-panel-body">El gym ya está cubierto. El déficit crítico es zona 2 al 24 por ciento del objetivo. Con el template Houston (150 min por semana) lo alcanzas la primera semana. VO₂max, RHR y HRV mejoran como consecuencia directa de sostener ese volumen de seis a ocho semanas.</div>
+      </div>
+      <div id="metrics-list"></div>
+      <div class="info-panel" style="margin-top:18px">
+        <div class="info-panel-title">Proyección de tasa de envejecimiento biológico</div>
+        <div class="info-panel-body"><strong>Actual:</strong> 1.05 a 1.10 veces (acelerado vs cronológico).<br><strong>Houston a seis semanas:</strong> reducción a 1.00 a 1.03 veces.<br><strong>Fin Fase 3 (mayo 2027):</strong> potencial de 0.95 a 0.98 veces.<br><br><em>Esta proyección no se recalcula con valores editados. Bevel tiene su algoritmo propio de weighting. Actualízala manualmente cuando Bevel te dé un número nuevo.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-col">
+    <div class="sb-block">
+      <div class="sb-label">Fase activa</div>
+      <div class="sb-phase-name" id="sb-phase-name"></div>
+      <div class="sb-phase-meta" id="sb-phase-meta"></div>
+      <div class="sb-progress">
+        <div class="sb-progress-row"><span id="sb-progress-week">—</span><span id="sb-progress-pct">—</span></div>
+        <div class="sb-progress-bar"><div class="sb-progress-fill" id="sb-progress-fill" style="width:0%"></div></div>
+      </div>
+      <ul class="sb-objectives" id="sb-objectives"></ul>
+    </div>
+    <div class="sb-block">
+      <div class="sb-label">Hoy debes hacer</div>
+      <div class="sb-today-card" onclick="goToToday()">
+        <div class="sb-today-day" id="sb-today-day">—</div>
+        <div class="sb-today-title" id="sb-today-title">—</div>
+        <div class="sb-today-sub" id="sb-today-sub">—</div>
+      </div>
+    </div>
+    <div class="sb-block">
+      <div class="sb-label">Esta semana</div>
+      <div class="sb-week-list" id="sb-week-list"></div>
+    </div>
+    <div class="sb-block">
+      <div class="sb-label">Métricas Bevel</div>
+      <div style="font-size:11px;color:var(--t3);font-family:var(--serif);font-style:italic;line-height:1.55">Editar tus mediciones reales actualiza el dashboard y la pestaña de métricas con cálculos en vivo.</div>
+      <div class="sb-edit-row"><button class="btn btn-g" onclick="openMetricsModal()" style="font-size:9px;padding:5px 10px">Editar valores</button></div>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="metrics-modal">
+  <div class="modal">
+    <div class="modal-sup">Actualizar métricas</div>
+    <div class="modal-title">Valores actuales de Bevel</div>
+    <div class="m-note">Los valores se guardan en este navegador. Actualiza semanalmente para que el dashboard refleje tu progreso real.</div>
+    <div class="m-grid">
+      <div class="m-fg"><label class="m-lbl">Pasos / día</label><input class="m-input" id="i-steps" type="number" step="100"><span class="m-target">Target: 8,000</span></div>
+      <div class="m-fg"><label class="m-lbl">Zona 2 / sem (min)</label><input class="m-input" id="i-z2" type="number"><span class="m-target">Target: 155</span></div>
+      <div class="m-fg"><label class="m-lbl">Zona 4 a 5 / sem (min)</label><input class="m-input" id="i-z5" type="number"><span class="m-target">Target: 12</span></div>
+      <div class="m-fg"><label class="m-lbl">VO₂max</label><input class="m-input" id="i-vo2" type="number" step="0.1"><span class="m-target">Target: 48 ml/kg/min</span></div>
+      <div class="m-fg"><label class="m-lbl">RHR (bpm)</label><input class="m-input" id="i-rhr" type="number"><span class="m-target">Target: menos de 60</span></div>
+      <div class="m-fg"><label class="m-lbl">HRV / SDNN (ms)</label><input class="m-input" id="i-hrv" type="number"><span class="m-target">Target: 70 o más</span></div>
+      <div class="m-fg"><label class="m-lbl">Sueño (h)</label><input class="m-input" id="i-sleep" type="number" step="0.1"><span class="m-target">Target: 7.5</span></div>
+      <div class="m-fg"><label class="m-lbl">Fuerza / sem (min)</label><input class="m-input" id="i-strength" type="number"><span class="m-target">Target: 70</span></div>
+    </div>
+    <div class="m-actions">
+      <button class="btn btn-g" onclick="closeMetricsModal()">Cancelar</button>
+      <button class="btn btn-p" onclick="saveMetrics()">Guardar</button>
+    </div>
+  </div>
+</div>
+<script>
+// ========== PHASE DATA ==========
+const phaseData = {
+  houston: {
+    code:'F00', name:'Cardio Base',
+    startDate:'2026-05-10', endDate:'2026-08-01',
+    durationLabel:'Hoy a 1 ago 2026', weeksTotal:12, hasWeeks:true,
+    objectives:[
+      'Establecer una base aeróbica sostenida de 150 minutos semanales en zona 2 por primera vez',
+      'Reducir la frecuencia cardiaca en reposo de 60 a 57 o 58 bpm en seis semanas',
+      'Mantener la fuerza con tres sesiones semanales de gimnasio mientras se prioriza el cardio'
+    ]
+  },
+  f1: {
+    code:'F01', name:'Velocidad y VO₂max',
+    startDate:'2026-08-01', endDate:'2026-11-01',
+    durationLabel:'1 ago a 1 nov 2026', weeksTotal:13,
+    objectives:[
+      'Capitalizar la base aeróbica de Houston con dos sesiones semanales de intervalos de alta intensidad',
+      'Llevar el VO₂max de 44 a más de 48 ml/kg/min y reducir la frecuencia cardiaca en reposo a menos de 58 bpm',
+      'Mantener la fuerza con tres sesiones siguiendo el template DUP base, progresando con carga cuando llegas al tope del rango'
+    ],
+    days:{
+      mon:{label:'Upper A',badge:'Hypertrophy',badgeClass:'badge-hyp'},
+      tue:{label:'Intervalos',badge:'HIIT',badgeClass:'badge-hiit'},
+      wed:{label:'Lower A',badge:'Strength',badgeClass:'badge-str'},
+      thu:{label:'Tempo o Tenis',badge:'Choice',badgeClass:'badge-choice'},
+      fri:{label:'Upper B',badge:'Strength',badgeClass:'badge-str'},
+      sat:{label:'Long Run y Pickups',badge:'Run',badgeClass:'badge-z2'},
+      sun:{label:'Tenis o Descanso',badge:'Choice',badgeClass:'badge-choice'}
+    }
+  },
+  f2: {
+    code:'F02', name:'Fuerza e Hipertrofia',
+    startDate:'2026-11-01', endDate:'2027-02-01',
+    durationLabel:'1 nov 2026 a 1 feb 2027', weeksTotal:13,
+    objectives:[
+      'Aumentar la fuerza en compound principals entre 15 y 20 por ciento durante doce semanas',
+      'Mantener el VO₂max por encima de 43 con dos sesiones semanales de cardio intenso',
+      'Sostener dos sesiones semanales de tenis sin afectar la recuperación del gimnasio'
+    ],
+    days:{
+      mon:{label:'Upper A',badge:'Hypertrophy',badgeClass:'badge-hyp'},
+      tue:{label:'Lower A',badge:'Strength',badgeClass:'badge-str'},
+      wed:{label:'HIIT o Tempo',badge:'HIIT',badgeClass:'badge-hiit'},
+      thu:{label:'Upper B',badge:'Strength',badgeClass:'badge-str'},
+      fri:{label:'Lower B',badge:'Hypertrophy',badgeClass:'badge-hyp'},
+      sat:{label:'HIIT y Tenis',badge:'HIIT',badgeClass:'badge-hiit'},
+      sun:{label:'Tenis o Caminata',badge:'Choice',badgeClass:'badge-choice'}
+    }
+  },
+  f3: {
+    code:'F03', name:'Reconstrucción Cardio',
+    startDate:'2027-02-01', endDate:'2027-05-01',
+    durationLabel:'1 feb a 1 may 2027', weeksTotal:13,
+    objectives:[
+      'Reconstruir el volumen aeróbico hasta 160 a 240 minutos semanales en zona 2',
+      'Aumentar el VO₂max de 43 a entre 46 y 47 ml/kg/min y reducir el RHR a entre 55 y 57 bpm',
+      'Preservar la fuerza con dos sesiones semanales de mantenimiento al 60 por ciento del volumen'
+    ],
+    days:{
+      mon:{label:'Run',badge:'Run',badgeClass:'badge-z2'},
+      tue:{label:'Upper',badge:'Mantenimiento',badgeClass:'badge-mant'},
+      wed:{label:'Run',badge:'Run',badgeClass:'badge-z2'},
+      thu:{label:'Tenis o Run',badge:'Choice',badgeClass:'badge-choice'},
+      fri:{label:'Lower',badge:'Mantenimiento',badgeClass:'badge-mant'},
+      sat:{label:'Long Run y Tenis',badge:'Run',badgeClass:'badge-z2'},
+      sun:{label:'Caminata',badge:'Walk',badgeClass:'badge-rest'}
+    }
+  },
+  f4: {
+    code:'F04', name:'Integración y Tenis',
+    startDate:'2027-05-01', endDate:'2027-08-01',
+    durationLabel:'1 may a 1 ago 2027', weeksTotal:13,
+    objectives:[
+      'Consolidar las adaptaciones del año con tres sesiones semanales mixtas de gimnasio',
+      'Mantener el VO₂max por encima de 48 con un long run y un trabajo de calidad semanal',
+      'Elevar el tenis a tres o cuatro sesiones semanales como modalidad dominante'
+    ],
+    days:{
+      mon:{label:'Upper A',badge:'Hypertrophy',badgeClass:'badge-hyp'},
+      tue:{label:'Tenis',badge:'Tenis',badgeClass:'badge-tennis'},
+      wed:{label:'Lower A',badge:'Strength',badgeClass:'badge-str'},
+      thu:{label:'Tenis',badge:'Tenis',badgeClass:'badge-tennis'},
+      fri:{label:'Upper B',badge:'Strength',badgeClass:'badge-str'},
+      sat:{label:'Long Run y Tenis',badge:'Run',badgeClass:'badge-z2'},
+      sun:{label:'Tenis o Descanso',badge:'Choice',badgeClass:'badge-choice'}
+    }
+  }
+};
+
+const houstonWeeks = {
+  wa:{
+    mon:{label:'Upper A',badge:'Hypertrophy',badgeClass:'badge-hyp'},
+    tue:{label:'Run',badge:'Run',badgeClass:'badge-z2'},
+    wed:{label:'Lower A',badge:'Strength',badgeClass:'badge-str'},
+    thu:{label:'Run o Tenis',badge:'Choice',badgeClass:'badge-choice'},
+    fri:{label:'Upper B',badge:'Strength',badgeClass:'badge-str'},
+    sat:{label:'Long Run o Tenis',badge:'Choice',badgeClass:'badge-choice'},
+    sun:{label:'Descanso',badge:'Off',badgeClass:'badge-rest'}
+  },
+  wb:{
+    mon:{label:'Lower B',badge:'Hypertrophy',badgeClass:'badge-hyp'},
+    tue:{label:'Run',badge:'Run',badgeClass:'badge-z2'},
+    wed:{label:'Upper A',badge:'Hypertrophy',badgeClass:'badge-hyp'},
+    thu:{label:'Run o Tenis',badge:'Choice',badgeClass:'badge-choice'},
+    fri:{label:'Lower A',badge:'Strength',badgeClass:'badge-str'},
+    sat:{label:'Long Run o Tenis',badge:'Choice',badgeClass:'badge-choice'},
+    sun:{label:'Descanso',badge:'Off',badgeClass:'badge-rest'}
+  },
+  rt:{
+    mon:{label:'Upper A Taper',badge:'Taper',badgeClass:'badge-rest'},
+    tue:{label:'Shakeout Run',badge:'Run',badgeClass:'badge-z2'},
+    wed:{label:'Lower A Taper',badge:'Taper',badgeClass:'badge-rest'},
+    thu:{label:'Descanso',badge:'Off',badgeClass:'badge-rest'},
+    fri:{label:'Upper B Light',badge:'Taper',badgeClass:'badge-rest'},
+    sat:{label:'10K Race',badge:'Race',badgeClass:'badge-race'},
+    sun:{label:'Recuperación',badge:'Off',badgeClass:'badge-rest'}
+  },
+  pr:{
+    mon:{label:'Upper B 70%',badge:'Hypertrophy',badgeClass:'badge-hyp'},
+    tue:{label:'Recovery Run',badge:'Run',badgeClass:'badge-z2'},
+    wed:{label:'Lower B 70%',badge:'Hypertrophy',badgeClass:'badge-hyp'},
+    thu:{label:'Run',badge:'Run',badgeClass:'badge-z2'},
+    fri:{label:'Upper A 85%',badge:'Hypertrophy',badgeClass:'badge-hyp'},
+    sat:{label:'Long Run',badge:'Run',badgeClass:'badge-z2'},
+    sun:{label:'Descanso',badge:'Off',badgeClass:'badge-rest'}
+  }
+};
+
+// ========== EXERCISE TEMPLATES ==========
+const _hUA=[{type:'compound',tl:'Compound',name:'DB Incline Press',sets:'3 × 10–12',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:'Bench a 30 grados, 2s eccentric.'},{type:'compound',tl:'Compound',name:'DB One-arm Row',sets:'3 × 10–12 / brazo',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:'Retracción escapular completa al tope.'},{type:'bw',tl:'BW',name:'Dips',sets:'3 × 10–15',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:'Lean 30° hacia adelante, ROM completo.'},{type:'compound',tl:'Compound',name:'Cable Lat Pulldown',sets:'3 × 10–12',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:'Wide bar, sin momentum.'},{type:'isolation',tl:'Isolation',name:'Cable Lateral Raises',sets:'3 × 12–15',rpe:'RPE 8–9',rc:'hi',rest:'Rest 60s',note:'Low pulley, path detrás del cuerpo.'},{type:'isolation',tl:'Isolation',name:'Cable Face Pulls',sets:'3 × 15',rpe:'RPE 8–9',rc:'hi',rest:'Rest 60s',note:'High pulley, codos altos.'}];
+const _hLA=[{type:'compound',tl:'Compound',name:'Leg Press',sets:'4 × 6–8',rpe:'RPE 8–9',rc:'hi',rest:'Rest 2.5 min',note:'Pies plataforma media, ROM profundo.'},{type:'compound',tl:'Compound',name:'Hip Thrust',sets:'4 × 6–8',rpe:'RPE 8–9',rc:'hi',rest:'Rest 2 min',note:'Drive por talones, 1s squeeze top.'},{type:'compound',tl:'Compound',name:'DB Bulgarian Split Squat',sets:'3 × 6–8 / pierna',rpe:'RPE 8–9',rc:'hi',rest:'Rest 2 min',note:'Pie trasero sobre banco, torso erguido.'},{type:'compound',tl:'Compound',name:'Back Extension',sets:'3 × 8',rpe:'RPE 8',rc:'mid',rest:'Rest 90s',note:'Bisagra de cadera, columna neutral.'},{type:'isolation',tl:'Isolation',name:'Seated Leg Curl',sets:'3 × 8',rpe:'RPE 8–9',rc:'hi',rest:'Rest 90s',note:'2s excéntrico.'}];
+const _hUB=[{type:'bw',tl:'BW',name:'Pull-ups (overhand)',sets:'4 × 6–8',rpe:'RPE 8–9',rc:'hi',rest:'Rest 2.5 min',note:'Dead hang abajo, barbilla sobre barra.'},{type:'compound',tl:'Compound',name:'DB Flat Bench Press',sets:'4 × 6–8',rpe:'RPE 8–9',rc:'hi',rest:'Rest 2.5 min',note:'ROM completo, tempo 2-1-2.'},{type:'compound',tl:'Compound',name:'DB Overhead Press',sets:'4 × 6–8',rpe:'RPE 8–9',rc:'hi',rest:'Rest 2 min',note:'Forma estricta, sin impulso.'},{type:'bw',tl:'BW',name:'Chin-ups (underhand)',sets:'3 × 6–8',rpe:'RPE 8–9',rc:'hi',rest:'Rest 2 min',note:'Si menos de 5 reps: 5s negativos.'},{type:'isolation',tl:'Isolation',name:'Cable Lateral Raises',sets:'3 × 10',rpe:'RPE 8–9',rc:'hi',rest:'Rest 75s',note:'Misma ejecución que Upper A.'},{type:'isolation',tl:'Isolation',name:'DB Hammer Curls',sets:'3 × 8',rpe:'RPE 8–9',rc:'hi',rest:'Rest 60s',note:'Agarre neutro, 15 lb.'}];
+const _hLB=[{type:'compound',tl:'Compound',name:'Leg Press (high feet)',sets:'3 × 10–12',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:'Bias hacia isquios y glúteos.'},{type:'compound',tl:'Compound',name:'Hip Thrust (2s pause)',sets:'3 × 12',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:'Squeeze al tope, peso moderado.'},{type:'compound',tl:'Compound',name:'DB Walking Lunges',sets:'3 × 12 / pierna',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:'Zancada larga para énfasis glúteo.'},{type:'compound',tl:'Compound',name:'Back Extension',sets:'3 × 12',rpe:'RPE 7–8',rc:'mid',rest:'Rest 60s',note:'2s hold top, más ligero que Lower A.'},{type:'isolation',tl:'Isolation',name:'Seated Leg Curl',sets:'3 × 12',rpe:'RPE 8–9',rc:'hi',rest:'Rest 60s',note:'Foco en contracción isquiotibial.'},{type:'isolation',tl:'Isolation',name:'Outer Thigh Machine',sets:'3 × 15',rpe:'RPE 8–9',rc:'hi',rest:'Rest 45s',note:'Gluteus medius, 2s pause.'}];
+
+const dayPlans = {
+  'h-upper-a':{title:'Upper A · Push y pull',tag:'Hypertrophy',tagDetail:'RPE 7-8',tagClass:'stim-hyper',warmup:{time:'7 min',items:[['Jumping jacks + arm circles + push-ups ×10','4 min'],['Ramp-up: DB incline ~50%×10 → ~75%×5','2 sets']]},cards:_hUA,sessionTime:'~55 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~30 min.</strong> Mismo orden, sin warm-up ramp.'},
+  'h-lower-a':{title:'Lower A · Quad y posterior',tag:'Strength',tagDetail:'RPE 8-9',tagClass:'stim-strength',warmup:{time:'7 min',items:[['BW squats ×15 + lunges ×10/pierna + leg swings + glute bridges ×15','4 min'],['Ramp-up: Leg press ~50%×10 → ~75%×5','2 sets']]},cards:_hLA,sessionTime:'~55 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~28 min.</strong> Mismo orden.'},
+  'h-upper-b':{title:'Upper B · Push y pull',tag:'Strength',tagDetail:'RPE 8-9',tagClass:'stim-strength',warmup:{time:'7 min',items:[['Jumping jacks + cat-cow + scapular pull-ups ×10 + dead hangs 2×15s','4 min'],['Ramp-up: Assisted pull-ups ~50% BW ×8 → ~25% BW ×4','2 sets']]},cards:_hUB,sessionTime:'~57 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~30 min.</strong> Mismo orden.'},
+  'h-lower-b':{title:'Lower B · Quad y posterior',tag:'Hypertrophy',tagDetail:'RPE 7-8',tagClass:'stim-hyper',warmup:{time:'7 min',items:[['Glute bridges ×15 + single-leg RDL ×8/pierna + clamshells ×15/lado','4 min'],['Ramp-up: Leg press ~50%×10 → ~75%×5','2 sets']]},cards:_hLB,sessionTime:'~55 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~27 min.</strong> Omite Outer Thigh.'},
+  'h-run':{title:'Run · Zona 2',tag:'Easy Run',tagDetail:'45 min · 120 a 145 bpm',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Calentamiento',sets:'5 min',rpe:'caminata',rc:'lo',rest:'previo',note:'Activación gradual.'},{type:'z2',tl:'Z2 Run',name:'Zona 2 sostenida',sets:'40 min',rpe:'120-145 bpm',rc:'mid',rest:'continuo',note:'Trote conversacional. Test nasal: si no puedes respirar por nariz, baja el ritmo.'},{type:'walk',tl:'Walk',name:'Enfriamiento',sets:'5 min',rpe:'caminata',rc:'lo',rest:'final',note:'Recuperación activa.'}],optB:'<strong>30 min caminata brisk a 5.5 a 6.5 km/h.</strong> Cuenta como zona 2 a tu nivel actual de VO₂max.'},
+  'h-run-tennis':{title:'Run o Tenis',tag:'Choice',tagDetail:'Cardio · tu elección',tagClass:'stim-choice',cards:[{type:'z2',tl:'Z2 Run',name:'Opción A · Zona 2',sets:'45 min',rpe:'120-145 bpm',rc:'mid',rest:'continuo',note:'5 min walk + 40 min trote zona 2 + 5 min walk.'},{type:'tennis',tl:'Tenis',name:'Opción B · Tenis',sets:'60 min',rpe:'~20-25 min Z4-5',rc:'hi',rest:'descanso',note:'Genera zona 4 a 5 orgánicamente. Añade 10 min walk post-tenis para completar zona 2.'}],optB:'<strong>25 min caminata brisk.</strong> Mantiene estímulo aeróbico basal.'},
+  'h-long':{title:'Long Run o Tenis',tag:'Long Run',tagDetail:'60 min · zona 2',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Calentamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'previo',note:''},{type:'z2',tl:'Z2 Run',name:'Opción A · Long Run zona 2',sets:'60 min',rpe:'120-145 bpm',rc:'mid',rest:'continuo',note:'Pausas de caminata cada 10 a 15 min permitidas.'},{type:'tennis',tl:'Tenis',name:'Opción B · Tenis 60 min + 20 min walk',sets:'60 + 20 min',rpe:'mixto',rc:'hi',rest:'descanso',note:'Contribución total a zona 2 semanal: 35 a 40 min.'},{type:'walk',tl:'Walk',name:'Enfriamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'final',note:''}],optB:'<strong>45 min caminata brisk.</strong> Contribuye unos 30 min de zona 2 real.'},
+  'h-rest':{title:'Descanso',tag:'Recovery',tagDetail:'Mobility 15 min',tagClass:'stim-rest',cards:[{type:'walk',tl:'Movilidad',name:'Hip flexors 90/90',sets:'2 min/lado',rpe:'estático',rc:'lo',rest:'estático',note:'Liberación de cadera profunda.'},{type:'walk',tl:'Movilidad',name:'Thoracic spine',sets:'cat-cow ×10 + rotaciones ×10/lado',rpe:'lento',rc:'lo',rest:'estático',note:'Movilidad de columna torácica.'},{type:'walk',tl:'Movilidad',name:'Hamstrings',sets:'forward fold 90s',rpe:'estático',rc:'lo',rest:'estático',note:'Estiramiento de cadena posterior.'},{type:'walk',tl:'Movilidad',name:'Shoulders',sets:'cross-body + sleeper 90s/lado',rpe:'estático',rc:'lo',rest:'estático',note:'Salud de hombro.'}]},
+  'h-rt-mon':{title:'Lunes 25 may · Upper A Taper',tag:'Taper',tagDetail:'50% volumen · RPE 6-7',tagClass:'stim-rest',cards:[{type:'compound',tl:'Compound',name:'DB Incline Press',sets:'2 × 8',rpe:'RPE 6–7',rc:'lo',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'DB One-arm Row',sets:'2 × 8 / brazo',rpe:'RPE 6–7',rc:'lo',rest:'Rest 75s',note:''},{type:'compound',tl:'Compound',name:'Cable Lat Pulldown',sets:'2 × 8',rpe:'RPE 6–7',rc:'lo',rest:'Rest 60s',note:''},{type:'isolation',tl:'Isolation',name:'Laterales y Face Pulls',sets:'2 × 12 c/u',rpe:'RPE 6',rc:'lo',rest:'Rest 45s',note:''}],sessionTime:'~30 min'},
+  'h-rt-tue':{title:'Martes 26 may · Shakeout',tag:'Easy Run',tagDetail:'20 min easy + 3 strides',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Calentamiento',sets:'8 min',rpe:'caminata',rc:'lo',rest:'previo',note:''},{type:'z2',tl:'Z2 Run',name:'Trote suave',sets:'12 min',rpe:'zona 2',rc:'mid',rest:'continuo',note:''},{type:'hiit',tl:'Strides',name:'Strides al 80%',sets:'3 × 80m',rpe:'80% esfuerzo',rc:'hi',rest:'90s walk',note:'Mantiene sistema neuromuscular activo sin fatiga.'}]},
+  'h-rt-wed':{title:'Miércoles 27 may · Lower A Taper',tag:'Taper',tagDetail:'50% volumen · RPE 6-7',tagClass:'stim-rest',cards:[{type:'compound',tl:'Compound',name:'Leg Press',sets:'2 × 6',rpe:'RPE 6–7',rc:'lo',rest:'Rest 2 min',note:''},{type:'compound',tl:'Compound',name:'Hip Thrust',sets:'2 × 8',rpe:'RPE 6–7',rc:'lo',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'Back Extension (BW)',sets:'2 × 10',rpe:'RPE 6',rc:'lo',rest:'Rest 60s',note:''},{type:'isolation',tl:'Isolation',name:'Leg Curl',sets:'2 × 8',rpe:'RPE 6',rc:'lo',rest:'Rest 60s',note:''}],sessionTime:'~27 min'},
+  'h-rt-thu':{title:'Jueves 28 may · Descanso total',tag:'No training',tagDetail:'Pre-race rest',tagClass:'stim-rest',cards:[{type:'walk',tl:'Movilidad',name:'Movilidad suave (opcional)',sets:'15 min',rpe:'sin elevar FC',rc:'lo',rest:'estático',note:'Sin gym, sin cardio, sin tenis. 500 mL hidratación extra. Dormir 8h mínimo.'}]},
+  'h-rt-fri':{title:'Viernes 29 may · Upper B Light',tag:'Taper',tagDetail:'RPE 6 · pre-race',tagClass:'stim-rest',cards:[{type:'bw',tl:'BW',name:'Pull-ups',sets:'2 × 5',rpe:'RPE 6',rc:'lo',rest:'Rest 2 min',note:''},{type:'compound',tl:'Compound',name:'DB Flat Bench Press',sets:'2 × 6',rpe:'RPE 6–7',rc:'lo',rest:'Rest 2 min',note:''},{type:'compound',tl:'Compound',name:'DB Overhead Press',sets:'2 × 6',rpe:'RPE 6–7',rc:'lo',rest:'Rest 90s',note:''}],sessionTime:'~22 min · Si fatiga: cancela y descansa'},
+  'h-rt-sat':{title:'Sábado 30 may · 10K Race',tag:'Race Day',tagDetail:'Opcional',tagClass:'stim-race',cards:[{type:'walk',tl:'Walk',name:'Warm-up',sets:'10 min trote + 3 strides al 80%',rpe:'previo',rc:'mid',rest:'previo',note:'Activación específica.'},{type:'race',tl:'Race',name:'10K',sets:'60 a 68 min target',rpe:'race effort',rc:'hi',rest:'continuo',note:'Primeros 2 km conservador. Si no estás listo, 45 min run fácil es válido. Red flags: mareo, confusión, dejar de sudar y detente. Hidratación 500 mL 2h antes.'}]},
+  'h-rt-sun':{title:'Domingo 31 may · Recuperación',tag:'Post-Race',tagDetail:'Recovery',tagClass:'stim-rest',cards:[{type:'walk',tl:'Walk',name:'Caminata suave',sets:'20 min',rpe:'zona 1',rc:'lo',rest:'continuo',note:'Foam roll quads, pantorrillas, isquios. Proteína dentro de 2h. Hidratación: 1.5 L por kg perdido.'}]},
+  'h-pr-mon':{title:'Lunes 1 jun · Upper B',tag:'Re-entry',tagDetail:'70% intensidad · RPE 7',tagClass:'stim-hyper',cards:[{type:'bw',tl:'BW',name:'Pull-ups',sets:'3 × 6',rpe:'RPE 7',rc:'mid',rest:'Rest 2 min',note:'Las piernas necesitan 5 a 7 días para recuperarse.'},{type:'compound',tl:'Compound',name:'DB Flat Bench Press',sets:'3 × 7',rpe:'RPE 7',rc:'mid',rest:'Rest 2 min',note:''},{type:'compound',tl:'Compound',name:'DB Overhead Press',sets:'3 × 7',rpe:'RPE 7',rc:'mid',rest:'Rest 90s',note:''},{type:'bw',tl:'BW',name:'Chin-ups',sets:'3 × 5',rpe:'RPE 7',rc:'mid',rest:'Rest 90s',note:''},{type:'isolation',tl:'Isolation',name:'Laterales y Hammer Curls',sets:'3 × 10 c/u',rpe:'RPE 7',rc:'mid',rest:'Rest 60s',note:''}],sessionTime:'~45 min'},
+  'h-pr-tue':{title:'Martes 2 jun · Recovery Run',tag:'Recovery',tagDetail:'30 min · zona 2 suave',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Calentamiento',sets:'5 min',rpe:'caminata',rc:'lo',rest:'previo',note:''},{type:'z2',tl:'Z2 Run',name:'Trote muy suave',sets:'25 min',rpe:'115-135 bpm',rc:'lo',rest:'continuo',note:'Más lento que zona 2 normal. Si las piernas pesan: 30 min caminata brisk.'},{type:'walk',tl:'Walk',name:'Enfriamiento',sets:'5 min',rpe:'caminata',rc:'lo',rest:'final',note:''}]},
+  'h-pr-wed':{title:'Miércoles 3 jun · Lower B',tag:'Re-entry',tagDetail:'70% intensidad · RPE 7',tagClass:'stim-hyper',cards:[{type:'compound',tl:'Compound',name:'Leg Press (light)',sets:'3 × 10',rpe:'RPE 7',rc:'mid',rest:'Rest 90s',note:'Si DOMS: reduce a RPE 6.'},{type:'compound',tl:'Compound',name:'Hip Thrust (2s pause)',sets:'3 × 10',rpe:'RPE 7',rc:'mid',rest:'Rest 75s',note:''},{type:'compound',tl:'Compound',name:'Walking Lunges',sets:'3 × 10 / pierna',rpe:'RPE 7',rc:'mid',rest:'Rest 75s',note:''},{type:'isolation',tl:'Isolation',name:'Seated Leg Curl',sets:'3 × 10',rpe:'RPE 7',rc:'mid',rest:'Rest 60s',note:''}],sessionTime:'~40 min'},
+  'h-pr-thu':{title:'Jueves 4 jun · Run',tag:'Easy Run',tagDetail:'30 min · recovery',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Calentamiento',sets:'5 min',rpe:'caminata',rc:'lo',rest:'previo',note:''},{type:'z2',tl:'Z2 Run',name:'Trote zona 2',sets:'25 min',rpe:'120-145 bpm',rc:'mid',rest:'continuo',note:'Alternativa: 45 min tenis si las piernas están bien.'},{type:'walk',tl:'Walk',name:'Enfriamiento',sets:'5 min',rpe:'caminata',rc:'lo',rest:'final',note:''}]},
+  'h-pr-fri':{title:'Viernes 5 jun · Upper A',tag:'Re-entry',tagDetail:'85% intensidad · RPE 7-8',tagClass:'stim-hyper',cards:[{type:'compound',tl:'Compound',name:'DB Incline Press',sets:'3 × 10',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'DB One-arm Row',sets:'3 × 10 / brazo',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:''},{type:'compound',tl:'Compound',name:'Cable Lat Pulldown',sets:'3 × 10',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:''},{type:'isolation',tl:'Isolation',name:'Laterales y Face Pulls',sets:'3 × 12 c/u',rpe:'RPE 8',rc:'hi',rest:'Rest 60s',note:''}],sessionTime:'~42 min'},
+  'h-pr-sat':{title:'Sábado 6 jun · Long Run',tag:'Long Run',tagDetail:'50 min · zona 2',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Calentamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'previo',note:''},{type:'z2',tl:'Z2 Run',name:'Long Run recovery',sets:'40 min',rpe:'120-145 bpm',rc:'mid',rest:'continuo',note:'Más corto que long run normal.'},{type:'walk',tl:'Walk',name:'Enfriamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'final',note:''}]},
+  'h-pr-sun':{title:'Domingo 7 jun · Descanso',tag:'Recovery',tagDetail:'Mobility 15 min',tagClass:'stim-rest',cards:[{type:'walk',tl:'Movilidad',name:'Movilidad completa',sets:'15 min',rpe:'estático',rc:'lo',rest:'estático',note:'Próxima semana retomas 100%.'}]},
+  'f1-mon':{title:'Lunes · Upper A',tag:'Hypertrophy',tagDetail:'RPE 7-8 · mantenimiento',tagClass:'stim-hyper',warmup:{time:'7 min',items:[['Jumping jacks + arm circles + push-ups ×10','4 min'],['Ramp-up: DB incline ~50%×10 → ~75%×5','2 sets']]},cards:_hUA,sessionTime:'~55 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~30 min.</strong> Mismo orden, sin warm-up ramp.'},
+  'f1-tue':{title:'Martes · Intervalos VO₂max',tag:'HIIT',tagDetail:'Zona 4-5 · 35-45 min',tagClass:'stim-hiit',cards:[{type:'walk',tl:'Warm-up',name:'Calentamiento',sets:'10 min',rpe:'caminata + jog',rc:'lo',rest:'previo',note:'4 strides al 85% al final.'},{type:'hiit',tl:'HIIT',name:'Opción A · 8 × 400m',sets:'8 reps',rpe:'90-95% FCmax',rc:'hi',rest:'90s walk',note:'Intervalos cortos, máxima velocidad sostenible.'},{type:'hiit',tl:'HIIT',name:'Opción B · 5 × 3 min',sets:'5 reps',rpe:'90% FCmax',rc:'hi',rest:'2 min trote',note:'Intervalos largos, mismo estímulo VO₂max.'},{type:'hiit',tl:'HIIT',name:'Opción C · 6 hill sprints',sets:'6 × 30s',rpe:'all-out',rc:'hi',rest:'walk down',note:'Si hay terreno con pendiente.'},{type:'walk',tl:'Cool-down',name:'Enfriamiento',sets:'8 min',rpe:'caminata',rc:'lo',rest:'final',note:''}],optB:'<strong>30 min zona 2 sostenida.</strong> No abandones la sesión, solo cambia el estímulo.'},
+  'f1-wed':{title:'Miércoles · Lower A',tag:'Strength',tagDetail:'RPE 8-9 · mantenimiento',tagClass:'stim-strength',warmup:{time:'7 min',items:[['BW squats ×15 + lunges ×10/pierna + leg swings + glute bridges ×15','4 min'],['Ramp-up: Leg press ~50%×10 → ~75%×5','2 sets']]},cards:_hLA,sessionTime:'~55 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~28 min.</strong> Mismo orden.'},
+  'f1-thu':{title:'Jueves · Tempo o Tenis',tag:'Choice',tagDetail:'Cardio · 45 a 60 min',tagClass:'stim-choice',cards:[{type:'tempo',tl:'Tempo',name:'Opción A · Tempo run',sets:'30 min total',rpe:'85% FCmax · umbral',rc:'mid',rest:'continuo',note:'8 min calentamiento + 20 min tempo + 7 min cool-down.'},{type:'tennis',tl:'Tenis',name:'Opción B · Tenis activo',sets:'60 min',rpe:'~20-25 min Z4-5',rc:'hi',rest:'descanso',note:'Aporta zona 4 a 5 que también complementa el énfasis VO₂max.'}],optB:'<strong>25 min caminata brisk.</strong> Mantiene estímulo aeróbico basal cuando no hay energía para tempo o tenis.'},
+  'f1-fri':{title:'Viernes · Upper B',tag:'Strength',tagDetail:'RPE 8-9 · mantenimiento',tagClass:'stim-strength',warmup:{time:'7 min',items:[['Jumping jacks + cat-cow + scapular pull-ups ×10 + dead hangs 2×15s','4 min'],['Ramp-up: Assisted pull-ups ~50% BW ×8 → ~25% BW ×4','2 sets']]},cards:_hUB,sessionTime:'~57 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~30 min.</strong> Mismo orden.'},
+  'f1-sat':{title:'Sábado · Long Run y Pickups',tag:'Long Run',tagDetail:'70 min total',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Calentamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'previo',note:''},{type:'z2',tl:'Z2 Run',name:'Long Run zona 2',sets:'50 min',rpe:'120-145 bpm',rc:'mid',rest:'continuo',note:'Base aeróbica del fin de semana.'},{type:'hiit',tl:'Pickups',name:'4 × 1 min al esfuerzo 5K',sets:'4 reps',rpe:'80-85% FCmax',rc:'hi',rest:'2 min trote',note:'Cierre con calidad, mantiene economía de carrera.'},{type:'walk',tl:'Walk',name:'Enfriamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'final',note:''}],optB:'<strong>45 min caminata brisk.</strong> Contribuye unos 30 min de zona 2 real, sin pickups.'},
+  'f1-sun':{title:'Domingo · Tenis o Descanso',tag:'Choice',tagDetail:'Activo ligero u off',tagClass:'stim-choice',cards:[{type:'tennis',tl:'Tenis',name:'Tenis casual',sets:'60 min',rpe:'recreativo',rc:'mid',rest:'descanso',note:'Tercera sesión semanal opcional.'},{type:'walk',tl:'Walk',name:'Caminata + movilidad',sets:'30-45 min walk + 15 min mobility',rpe:'zona 1',rc:'lo',rest:'continuo',note:'Alternativa si no hay tenis o si recuperación lo demanda.'}],optB:'<strong>Movilidad 15 min y caminata 20 min.</strong> Ya es un día ligero, no fuerzas más.'},
+  'f2-mon':{title:'Lunes · Upper A',tag:'Hypertrophy',tagDetail:'RPE 7-8 · volumen alto',tagClass:'stim-hyper',warmup:{time:'7 min',items:[['Activación general + ramp-up DB incline','7 min']]},cards:[{type:'compound',tl:'Compound',name:'DB Incline Press',sets:'4 × 8–10',rpe:'RPE 7–8',rc:'mid',rest:'Rest 2 min',note:'+1 set vs Houston para hipertrofia.'},{type:'compound',tl:'Compound',name:'DB One-arm Row',sets:'4 × 8–10 / brazo',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:'Peso al límite del rango.'},{type:'bw',tl:'BW',name:'Dips (loaded)',sets:'3 × 8–12',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:'Mochila con peso si BW supera 15 reps.'},{type:'compound',tl:'Compound',name:'Cable Lat Pulldown',sets:'3 × 10–12',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:'Wide bar, leve lean back.'},{type:'isolation',tl:'Isolation',name:'Cable Lateral Raises',sets:'4 × 12–15',rpe:'RPE 8–9',rc:'hi',rest:'Rest 60s',note:'+1 set vs Houston.'},{type:'isolation',tl:'Isolation',name:'Cable Face Pulls',sets:'3 × 15',rpe:'RPE 8–9',rc:'hi',rest:'Rest 60s',note:'Salud de hombro.'}],sessionTime:'~62 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~30 min.</strong> Mismo orden, sin warm-up ramp.'},
+  'f2-tue':{title:'Martes · Lower A',tag:'Strength',tagDetail:'RPE 8-9 · alta intensidad',tagClass:'stim-strength',warmup:{time:'7 min',items:[['Activación general + ramp-up Leg press','7 min']]},cards:[{type:'compound',tl:'Compound',name:'Leg Press (heavy)',sets:'5 × 4–6',rpe:'RPE 8–9',rc:'hi',rest:'Rest 3 min',note:'Más sets, menos reps, máxima carga.'},{type:'compound',tl:'Compound',name:'Hip Thrust (heavy)',sets:'4 × 5–6',rpe:'RPE 8–9',rc:'hi',rest:'Rest 2.5 min',note:'Progresar carga semanalmente.'},{type:'compound',tl:'Compound',name:'DB Bulgarian Split Squat',sets:'3 × 6 / pierna',rpe:'RPE 8–9',rc:'hi',rest:'Rest 2 min',note:'Reducir reps, aumentar carga.'},{type:'compound',tl:'Compound',name:'Back Extension (loaded)',sets:'3 × 8',rpe:'RPE 8',rc:'mid',rest:'Rest 90s',note:'DB 25+ lb en pecho.'},{type:'isolation',tl:'Isolation',name:'Seated Leg Curl',sets:'3 × 8',rpe:'RPE 8–9',rc:'hi',rest:'Rest 90s',note:'2s excéntrico.'}],sessionTime:'~62 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~30 min.</strong> Mismo orden.'},
+  'f2-wed':{title:'Miércoles · HIIT o Tempo',tag:'HIIT',tagDetail:'Cardio intenso · 35 min',tagClass:'stim-hiit',cards:[{type:'walk',tl:'Warm-up',name:'Calentamiento',sets:'8 min',rpe:'caminata + jog',rc:'lo',rest:'previo',note:''},{type:'hiit',tl:'HIIT',name:'Opción A · 6 × 3 min al 90% FCmax',sets:'6 reps',rpe:'90% FCmax',rc:'hi',rest:'2 min trote',note:'Mantenimiento VO₂max durante fase de fuerza.'},{type:'tempo',tl:'Tempo',name:'Opción B · 20 min al 85% FCmax',sets:'1 × 20 min',rpe:'umbral lactato',rc:'mid',rest:'continuo',note:'Alterna semanalmente con Opción A.'},{type:'walk',tl:'Cool-down',name:'Enfriamiento',sets:'7 min',rpe:'caminata',rc:'lo',rest:'final',note:''}],optB:'<strong>30 min zona 2 sostenida.</strong> No abandones, solo reduce el estímulo.'},
+  'f2-thu':{title:'Jueves · Upper B',tag:'Strength',tagDetail:'RPE 8-9 · alta intensidad',tagClass:'stim-strength',warmup:{time:'7 min',items:[['Activación general + assisted pull-up ramp-up','7 min']]},cards:[{type:'bw',tl:'BW',name:'Pull-ups (weighted)',sets:'5 × 4–6',rpe:'RPE 8–9',rc:'hi',rest:'Rest 3 min',note:'Mochila con peso, 4 reps × 2 sesiones aumenta a +5 lb.'},{type:'compound',tl:'Compound',name:'DB Flat Bench Press',sets:'5 × 5',rpe:'RPE 8–9',rc:'hi',rest:'Rest 3 min',note:'Carga máxima, esquema 5×5 clásico.'},{type:'compound',tl:'Compound',name:'DB Overhead Press',sets:'4 × 5–6',rpe:'RPE 8–9',rc:'hi',rest:'Rest 2.5 min',note:'Forma estricta, sin impulso.'},{type:'bw',tl:'BW',name:'Chin-ups (weighted)',sets:'3 × 6',rpe:'RPE 8–9',rc:'hi',rest:'Rest 2 min',note:''},{type:'isolation',tl:'Isolation',name:'Cable Lateral Raises',sets:'3 × 10',rpe:'RPE 8–9',rc:'hi',rest:'Rest 75s',note:''},{type:'isolation',tl:'Isolation',name:'DB Hammer Curls',sets:'3 × 8',rpe:'RPE 8–9',rc:'hi',rest:'Rest 60s',note:''}],sessionTime:'~63 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~30 min.</strong> Mismo orden.'},
+  'f2-fri':{title:'Viernes · Lower B',tag:'Hypertrophy',tagDetail:'RPE 7-8 · volumen alto',tagClass:'stim-hyper',warmup:{time:'7 min',items:[['Activación posterior + ramp-up Leg press','7 min']]},cards:[{type:'compound',tl:'Compound',name:'Leg Press (high feet, narrow)',sets:'4 × 10–12',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'Hip Thrust (2s pause)',sets:'4 × 12',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:''},{type:'compound',tl:'Compound',name:'DB Walking Lunges',sets:'3 × 12 / pierna',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:''},{type:'compound',tl:'Compound',name:'Back Extension',sets:'3 × 12',rpe:'RPE 7–8',rc:'mid',rest:'Rest 60s',note:''},{type:'isolation',tl:'Isolation',name:'Seated Leg Curl',sets:'3 × 12',rpe:'RPE 8–9',rc:'hi',rest:'Rest 60s',note:''},{type:'isolation',tl:'Isolation',name:'Outer Thigh Machine',sets:'3 × 15',rpe:'RPE 8–9',rc:'hi',rest:'Rest 45s',note:''}],sessionTime:'~58 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~28 min.</strong> Mismo orden, omite Outer Thigh.'},
+  'f2-sat':{title:'Sábado · HIIT y Tenis',tag:'HIIT + Tenis',tagDetail:'30 min cardio + 60-90 min tenis',tagClass:'stim-hiit',cards:[{type:'walk',tl:'Warm-up',name:'Calentamiento HIIT',sets:'8 min',rpe:'caminata + jog',rc:'lo',rest:'previo',note:''},{type:'hiit',tl:'HIIT',name:'Sesión cardio intensa',sets:'30 min',rpe:'alterna A/B',rc:'hi',rest:'según opción',note:'Si miércoles fue HIIT, hoy tempo. Si miércoles fue tempo, hoy HIIT.'},{type:'tennis',tl:'Tenis',name:'Sesión principal de tenis',sets:'60-90 min',rpe:'partido activo',rc:'hi',rest:'tarde',note:'Aporta zona 4 a 5 orgánica. Separar 4h o más del HIIT.'}],optB:'<strong>30 min zona 2 sostenida + tenis casual 45 min.</strong> Si no puedes con HIIT, mantienes el cardio aeróbico.'},
+  'f2-sun':{title:'Domingo · Tenis o Caminata',tag:'Choice',tagDetail:'Activo ligero',tagClass:'stim-choice',cards:[{type:'tennis',tl:'Tenis',name:'Tenis casual (segunda sesión)',sets:'60 min',rpe:'recreativo',rc:'mid',rest:'descanso',note:'Sesión de habilidad de baja intensidad.'},{type:'walk',tl:'Walk',name:'Caminata + movilidad',sets:'30-45 min walk + 15 min mobility',rpe:'zona 1',rc:'lo',rest:'continuo',note:'Acumula pasos y zona 2 ligera.'}],optB:'<strong>20 min caminata + 15 min movilidad.</strong> Ya es un día activo ligero, no fuerzas más.'},
+  'f3-mon':{title:'Lunes · Run',tag:'Easy Run',tagDetail:'45 min · zona 2',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Calentamiento',sets:'5 min',rpe:'caminata',rc:'lo',rest:'previo',note:''},{type:'z2',tl:'Z2 Run',name:'Zona 2 sostenida',sets:'40 min',rpe:'120-145 bpm',rc:'mid',rest:'continuo',note:'Trote conversacional. Foco: reconstrucción aeróbica.'},{type:'walk',tl:'Walk',name:'Enfriamiento',sets:'5 min',rpe:'caminata',rc:'lo',rest:'final',note:''}],optB:'<strong>30 min caminata brisk a 5.5 a 6.5 km/h.</strong> Cuenta como zona 2.'},
+  'f3-tue':{title:'Martes · Upper Mantenimiento',tag:'Mantenimiento',tagDetail:'RPE 7 · 60% volumen',tagClass:'stim-mant',warmup:{time:'5 min',items:[['Activación general + ramp-up corto','5 min']]},cards:[{type:'bw',tl:'BW',name:'Pull-ups',sets:'2 × 6',rpe:'RPE 7',rc:'mid',rest:'Rest 90s',note:'Una sesión semanal preserva fuerza hasta 24 semanas.'},{type:'compound',tl:'Compound',name:'DB Flat Bench Press',sets:'3 × 6',rpe:'RPE 7',rc:'mid',rest:'Rest 90s',note:'Carga similar a F2, volumen reducido 40%.'},{type:'compound',tl:'Compound',name:'DB Overhead Press',sets:'2 × 6',rpe:'RPE 7',rc:'mid',rest:'Rest 75s',note:''},{type:'compound',tl:'Compound',name:'Cable Lat Pulldown',sets:'2 × 8',rpe:'RPE 7',rc:'mid',rest:'Rest 75s',note:''},{type:'isolation',tl:'Isolation',name:'Laterales y Hammer Curls',sets:'2 × 10 c/u',rpe:'RPE 7',rc:'mid',rest:'Rest 60s',note:''}],sessionTime:'~35 min',optB:'<strong>1 set cada uno · RPE 6 · ~22 min.</strong> Solo compounds principales, omite isolation.'},
+  'f3-wed':{title:'Miércoles · Run',tag:'Easy Run',tagDetail:'50 min · zona 2',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Calentamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'previo',note:''},{type:'z2',tl:'Z2 Run',name:'Zona 2 sostenida',sets:'40 min',rpe:'120-145 bpm',rc:'mid',rest:'continuo',note:'Volumen aumentado para construcción de base aeróbica.'},{type:'walk',tl:'Walk',name:'Enfriamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'final',note:''}],optB:'<strong>30 min caminata brisk a 5.5 a 6.5 km/h.</strong> Cuenta como zona 2.'},
+  'f3-thu':{title:'Jueves · Tenis o Run',tag:'Choice',tagDetail:'60 min',tagClass:'stim-choice',cards:[{type:'tennis',tl:'Tenis',name:'Opción A · Tenis activo',sets:'60 min',rpe:'partido',rc:'hi',rest:'descanso',note:'Genera zona 3 a 5 orgánicamente.'},{type:'z2',tl:'Z2 Run',name:'Opción B · Zona 2',sets:'45 min',rpe:'120-145 bpm',rc:'mid',rest:'continuo',note:'5 min walk + 40 min trote + 5 min walk.'}],optB:'<strong>25 min caminata brisk.</strong> Equivale al estímulo aeróbico planeado.'},
+  'f3-fri':{title:'Viernes · Lower Mantenimiento',tag:'Mantenimiento',tagDetail:'RPE 7 · 60% volumen',tagClass:'stim-mant',warmup:{time:'5 min',items:[['Activación posterior + ramp-up corto','5 min']]},cards:[{type:'compound',tl:'Compound',name:'Leg Press',sets:'3 × 6',rpe:'RPE 7',rc:'mid',rest:'Rest 90s',note:'Carga heavy similar a F2, volumen al 60%.'},{type:'compound',tl:'Compound',name:'Hip Thrust',sets:'2 × 8',rpe:'RPE 7',rc:'mid',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'DB Bulgarian Split Squat',sets:'2 × 8 / pierna',rpe:'RPE 7',rc:'mid',rest:'Rest 75s',note:''},{type:'compound',tl:'Compound',name:'Back Extension',sets:'2 × 10',rpe:'RPE 7',rc:'mid',rest:'Rest 60s',note:''},{type:'isolation',tl:'Isolation',name:'Seated Leg Curl',sets:'2 × 10',rpe:'RPE 7',rc:'mid',rest:'Rest 60s',note:''}],sessionTime:'~35 min',optB:'<strong>1 set cada uno · RPE 6 · ~22 min.</strong> Solo compounds principales, omite isolation.'},
+  'f3-sat':{title:'Sábado · Long Run y Tenis',tag:'Long Run',tagDetail:'60 min Z2 + tenis tarde',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Calentamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'previo',note:''},{type:'z2',tl:'Z2 Run',name:'Long Run zona 2',sets:'60 min',rpe:'120-145 bpm',rc:'mid',rest:'continuo',note:'Long run principal de la fase.'},{type:'walk',tl:'Walk',name:'Enfriamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'final',note:''},{type:'tennis',tl:'Tenis',name:'Tenis (tarde)',sets:'60-90 min',rpe:'partido',rc:'hi',rest:'separar 4h+ del run',note:'Sesión principal de tenis, separada del long run.'}],optB:'<strong>45 min caminata brisk.</strong> Contribuye unos 30 min de zona 2 real, sin tenis.'},
+  'f3-sun':{title:'Domingo · Caminata',tag:'Active Recovery',tagDetail:'Zona 1-2 ligera',tagClass:'stim-rest',cards:[{type:'walk',tl:'Walk',name:'Caminata zona 1-2',sets:'30-45 min',rpe:'casual',rc:'lo',rest:'continuo',note:'Acumula pasos y volumen aeróbico de baja intensidad.'},{type:'walk',tl:'Movilidad',name:'Movilidad completa',sets:'15 min',rpe:'estático',rc:'lo',rest:'estático',note:'Al final de la caminata.'}]},
+  'f4-mon':{title:'Lunes · Upper A',tag:'Hypertrophy',tagDetail:'RPE 7-8',tagClass:'stim-hyper',warmup:{time:'7 min',items:[['Activación general + ramp-up','7 min']]},cards:[{type:'compound',tl:'Compound',name:'DB Incline Press',sets:'3 × 8',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'DB One-arm Row',sets:'3 × 8 / brazo',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:''},{type:'bw',tl:'BW',name:'Dips',sets:'3 × 10',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'Cable Lat Pulldown',sets:'3 × 10',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:''},{type:'isolation',tl:'Isolation',name:'Laterales y Face Pulls',sets:'3 × 12 c/u',rpe:'RPE 8–9',rc:'hi',rest:'Rest 60s',note:''}],sessionTime:'~50 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~30 min.</strong> Mismo orden.'},
+  'f4-tue':{title:'Martes · Tenis',tag:'Tenis',tagDetail:'Sesión 1 de 4',tagClass:'stim-tennis',cards:[{type:'tennis',tl:'Tenis',name:'Sesión técnica o partido',sets:'60-90 min',rpe:'según día',rc:'hi',rest:'descanso',note:'Énfasis en consolidar habilidades. Modalidad dominante.'}],optB:'<strong>30 min caminata + 15 min movilidad.</strong> Si no hay tenis, mantienes gasto calórico.'},
+  'f4-wed':{title:'Miércoles · Lower A',tag:'Strength',tagDetail:'RPE 7-8',tagClass:'stim-strength',warmup:{time:'7 min',items:[['Activación inferior + ramp-up','7 min']]},cards:[{type:'compound',tl:'Compound',name:'Leg Press',sets:'3 × 8',rpe:'RPE 7–8',rc:'mid',rest:'Rest 2 min',note:''},{type:'compound',tl:'Compound',name:'Hip Thrust',sets:'3 × 8',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'DB Bulgarian Split Squat',sets:'3 × 8 / pierna',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'Back Extension',sets:'3 × 10',rpe:'RPE 7–8',rc:'mid',rest:'Rest 60s',note:''},{type:'isolation',tl:'Isolation',name:'Seated Leg Curl',sets:'3 × 10',rpe:'RPE 8',rc:'hi',rest:'Rest 60s',note:''}],sessionTime:'~50 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~28 min.</strong> Mismo orden.'},
+  'f4-thu':{title:'Jueves · Tenis',tag:'Tenis',tagDetail:'Sesión 2 de 4',tagClass:'stim-tennis',cards:[{type:'tennis',tl:'Tenis',name:'Sesión técnica o partido',sets:'60-90 min',rpe:'según recuperación',rc:'hi',rest:'descanso',note:'Si DOMS del miércoles, sesión técnica. Si recuperado, partido competitivo.'}],optB:'<strong>30 min caminata + 15 min movilidad.</strong> Si no hay tenis o el cuerpo no responde.'},
+  'f4-fri':{title:'Viernes · Upper B',tag:'Strength',tagDetail:'RPE 7-8',tagClass:'stim-strength',warmup:{time:'7 min',items:[['Activación general + assisted pull-up ramp-up','7 min']]},cards:[{type:'bw',tl:'BW',name:'Pull-ups',sets:'3 × 6',rpe:'RPE 7–8',rc:'mid',rest:'Rest 2 min',note:''},{type:'compound',tl:'Compound',name:'DB Flat Bench Press',sets:'3 × 7',rpe:'RPE 7–8',rc:'mid',rest:'Rest 2 min',note:''},{type:'compound',tl:'Compound',name:'DB Overhead Press',sets:'3 × 6',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:''},{type:'bw',tl:'BW',name:'Chin-ups',sets:'3 × 5',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:''},{type:'isolation',tl:'Isolation',name:'Laterales y Hammer Curls',sets:'3 × 10 c/u',rpe:'RPE 8',rc:'hi',rest:'Rest 60s',note:''}],sessionTime:'~50 min',optB:'<strong>2 sets cada uno · RPE 6 a 7 · ~30 min.</strong> Mismo orden.'},
+  'f4-sat':{title:'Sábado · Long Run y Tenis',tag:'Long Run',tagDetail:'60 min Z2 + tenis',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Calentamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'previo',note:''},{type:'z2',tl:'Z2 Run',name:'Long Run zona 2',sets:'60 min',rpe:'120-145 bpm',rc:'mid',rest:'continuo',note:'Mantenimiento de base aeróbica.'},{type:'walk',tl:'Walk',name:'Enfriamiento',sets:'10 min',rpe:'caminata',rc:'lo',rest:'final',note:''},{type:'tennis',tl:'Tenis',name:'Tenis (tarde) · Sesión 3 de 4',sets:'60-90 min',rpe:'competitivo',rc:'hi',rest:'separar 4h+ del run',note:'Sesión principal de tenis del fin de semana.'}],optB:'<strong>45 min caminata brisk.</strong> Contribuye unos 30 min de zona 2, sin tenis.'},
+  'f4-sun':{title:'Domingo · Tenis o Descanso',tag:'Choice',tagDetail:'Sesión 4 de 4 opcional',tagClass:'stim-choice',cards:[{type:'tennis',tl:'Tenis',name:'Tenis casual (Sesión 4)',sets:'60 min',rpe:'recreativo',rc:'mid',rest:'descanso',note:'Cuarta sesión semanal de tenis si la recuperación lo permite.'},{type:'walk',tl:'Walk',name:'Caminata + movilidad',sets:'30-45 min walk + 15 min mobility',rpe:'zona 1',rc:'lo',rest:'continuo',note:'Alternativa de recuperación.'}],optB:'<strong>Movilidad 15 min y caminata 20 min.</strong> Ya es un día ligero opcional.'}
+};
+
+const metricDefs=[{key:'steps',label:'Pasos diarios',target:8000,unit:'pasos',inverse:false,decimals:0,priority:'p2',shortLbl:'Pasos',note:'Los runs aportan ~5,000 pasos. 2 caminatas de 10 min cubren el gap.'},{key:'z2',label:'Zona 2 semanal',target:155,unit:'min',inverse:false,decimals:0,priority:'p1',shortLbl:'Z2/sem',note:'Houston: 45+45+60 = 150 min. VO₂max mejora a 4-6 sem.'},{key:'z5',label:'Zona 4-5 semanal',target:12,unit:'min',inverse:false,decimals:0,priority:'p3',shortLbl:'Z5/sem',note:'Una sesión de tenis genera 20-25 min Z4-5.'},{key:'vo2',label:'VO₂max',target:48,unit:'ml/kg/min',inverse:false,decimals:1,priority:'p1',shortLbl:'VO₂max',note:'+10% en 10 sem de 150+ min/sem zona 2. Target en Fase 1 (Velocidad).'},{key:'rhr',label:'RHR',target:60,unit:'bpm',inverse:true,decimals:0,priority:'p2',shortLbl:'RHR',note:'-1 bpm por cada 10 min/sem extra de zona 2.'},{key:'hrv',label:'HRV · SDNN',target:70,unit:'ms',inverse:false,decimals:0,priority:'p3',shortLbl:'HRV',note:'Consecuencia de zona 2 + sueño. Trend semanal.'},{key:'sleep',label:'Sueño',target:7.5,unit:'h',inverse:false,decimals:1,priority:'p-ok',shortLbl:'Sueño',note:'Único marcador cumplido. Regularidad 86%.'},{key:'strength',label:'Fuerza (min/sem)',target:70,unit:'min',inverse:false,decimals:0,priority:'p-ok',shortLbl:'Fuerza',note:'3 sesiones × 55 min = 165. Cubierto en todas las fases.'}];
+const STORAGE_KEY='health-dashboard-metrics-v3';
+const defaults={steps:6000,z2:38,z5:18,vo2:41,rhr:60,hrv:60,sleep:7.5,strength:90};
+let metrics={...defaults};
+function loadMetrics(){try{const s=localStorage.getItem(STORAGE_KEY);if(s)metrics={...defaults,...JSON.parse(s)};}catch(e){}}
+function saveMetricsToStorage(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(metrics));}catch(e){}}
+function metricStatus(d,v){if(d.inverse){if(v<d.target)return'ok';if(v<=d.target+5)return'warn';return'crit';}const p=v/d.target;if(p>=1)return'ok';if(p>=0.7)return'warn';return'crit';}
+function statusColor(s){return s==='ok'?'var(--green)':s==='warn'?'var(--gold)':'var(--red)';}
+
+let currentPhase='houston',currentWeek='wa',currentDay='mon',currentView='plan';
+let TODAY_PHASE='houston',TODAY_WEEK='wa',TODAY_DAY='mon';
+const RACE_DATE=new Date('2026-05-30');
+const HOUSTON_END=new Date('2026-08-01');
+const dayNames=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function detectActivePhase(today){for(const k of Object.keys(phaseData)){const p=phaseData[k];if(today>=new Date(p.startDate)&&today<new Date(p.endDate))return k;}return null;}
+function detectHoustonWeek(today){const WB=new Date('2026-05-18'),RT=new Date('2026-05-25'),PR=new Date('2026-06-01'),A2=new Date('2026-06-08'),B2=new Date('2026-06-15');if(today>=B2)return'wb';if(today>=A2)return'wa';if(today>=PR)return'pr';if(today>=RT)return'rt';if(today>=WB)return'wb';return'wa';}
+
+function renderPhaseSelector(){
+  const wrap=document.getElementById('phase-selector');
+  wrap.innerHTML=Object.keys(phaseData).map(k=>{
+    const p=phaseData[k];
+    return `<button class="phase-btn" data-phase="${k}" onclick="setPhase('${k}',this)"><span class="pb-num">FASE ${p.code.replace('F','')}</span><span class="pb-name">${p.name}</span><span class="pb-dates">${p.durationLabel}</span><span class="pb-active" data-active="${k}">Activa</span></button>`;
+  }).join('');
+}
+function updateActivePhaseTag(){const a=detectActivePhase(new Date());document.querySelectorAll('.pb-active').forEach(t=>t.classList.toggle('show',t.dataset.active===a));}
+
+function getCurrentDayMap(){if(currentPhase==='houston')return houstonWeeks[currentWeek];return phaseData[currentPhase].days;}
+function renderDayTabs(){
+  const dm=getCurrentDayMap();
+  const order=['mon','tue','wed','thu','fri','sat','sun'];
+  const labels=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  document.getElementById('day-tabs').innerHTML=order.map((d,i)=>`<div class="day-tab" data-day="${d}" onclick="showDay('${d}')"><div class="dt-lbl">${labels[i]}</div><div class="dt-type">${dm[d].label}</div><div class="dt-badge ${dm[d].badgeClass}">${dm[d].badge}</div></div>`).join('');
+}
+
+function getDayPlanKey(phase,week,day){
+  if(phase==='houston'){
+    if((week==='wa'||week==='wb')&&day==='tue')return'h-run';
+    if((week==='wa'||week==='wb')&&day==='thu')return'h-run-tennis';
+    if((week==='wa'||week==='wb')&&day==='sat')return'h-long';
+    if((week==='wa'||week==='wb')&&day==='sun')return'h-rest';
+    if(week==='wa'&&day==='mon')return'h-upper-a';
+    if(week==='wa'&&day==='wed')return'h-lower-a';
+    if(week==='wa'&&day==='fri')return'h-upper-b';
+    if(week==='wb'&&day==='mon')return'h-lower-b';
+    if(week==='wb'&&day==='wed')return'h-upper-a';
+    if(week==='wb'&&day==='fri')return'h-lower-a';
+    if(week==='rt')return'h-rt-'+day;
+    if(week==='pr')return'h-pr-'+day;
+  }
+  return phase+'-'+day;
+}
+
+function renderCard(c){
+  const meta=`<span class="ex-sets">${c.sets}</span>${c.rpe?`<span class="rpe-chip rpe-${c.rc}">${c.rpe}</span>`:''}${c.rest?`<span class="rest-chip">${c.rest}</span>`:''}`;
+  return `<div class="ex-card"><div class="ex-main"><span class="ex-type ${c.type}">${c.tl}</span><div class="ex-body"><div class="ex-name">${c.name}</div><div class="ex-meta">${meta}</div>${c.note?`<div class="ex-note">${c.note}</div>`:''}</div></div></div>`;
+}
+function renderWarmup(w){return `<div class="warmup-box"><div class="warmup-title">Warm-up · ${w.time}</div>${w.items.map(i=>`<div class="warmup-row"><span>${i[0]}</span><span class="warmup-time">${i[1]}</span></div>`).join('')}</div>`;}
+function renderDayPanel(plan){
+  if(!plan)return'<div style="padding:40px;text-align:center;color:var(--t4)">Sin datos para este día.</div>';
+  let html=`<div class="sec-label"><span class="sec-label-text">${plan.title}</span><span class="stim-tag ${plan.tagClass}">${plan.tag} · ${plan.tagDetail}</span></div>`;
+  if(plan.warmup)html+=renderWarmup(plan.warmup);
+  html+=plan.cards.map(renderCard).join('');
+  if(plan.sessionTime)html+=`<div class="session-time">${plan.sessionTime}</div>`;
+  if(plan.optB)html+=`<details class="opt-b"><summary>Día difícil</summary><div class="opt-b-content">${plan.optB}</div></details>`;
+  return html;
+}
+
+function showDay(day){
+  currentDay=day;
+  document.querySelectorAll('.day-tab').forEach(t=>t.classList.toggle('active',t.dataset.day===day));
+  const key=getDayPlanKey(currentPhase,currentWeek,day);
+  document.getElementById('day-content').innerHTML=renderDayPanel(dayPlans[key]);
+  updateTodayMarker();
+  renderSidebarWeek();
+}
+function updateTodayMarker(){
+  document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('today'));
+  if(currentPhase===TODAY_PHASE&&(currentPhase!=='houston'||currentWeek===TODAY_WEEK)){
+    const t=document.querySelector(`.day-tab[data-day="${TODAY_DAY}"]`);
+    if(t)t.classList.add('today');
+  }
+}
+
+function setPhase(phase,btn){
+  currentPhase=phase;
+  document.querySelectorAll('.phase-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.getElementById('houston-subtabs').style.display=phase==='houston'?'flex':'none';
+  if(phase!=='houston')currentWeek='wa';
+  renderDayTabs();
+  renderSidebarPhase();
+  showDay(currentDay);
+}
+function setWeek(week,btn){
+  currentWeek=week;
+  document.querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderDayTabs();
+  showDay(currentDay);
+}
+function setView(view,btn){
+  currentView=view;
+  document.querySelectorAll('.view-tab').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.querySelectorAll('.main-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+}
+
+function renderSidebarPhase(){
+  const p=phaseData[currentPhase];
+  document.getElementById('sb-phase-name').textContent=p.name;
+  document.getElementById('sb-phase-meta').textContent=p.durationLabel;
+  document.getElementById('sb-objectives').innerHTML=p.objectives.map(o=>`<li>${o}</li>`).join('');
+  const today=new Date();
+  const start=new Date(p.startDate),end=new Date(p.endDate);
+  let weekNum=0,pct=0;
+  if(today<start){weekNum=0;pct=0;}
+  else if(today>=end){weekNum=p.weeksTotal;pct=100;}
+  else{const elapsed=(today-start)/(7*24*60*60*1000);weekNum=Math.ceil(elapsed);pct=Math.round((elapsed/p.weeksTotal)*100);}
+  document.getElementById('sb-progress-week').textContent=`Semana ${weekNum} de ${p.weeksTotal}`;
+  document.getElementById('sb-progress-pct').textContent=`${pct}%`;
+  document.getElementById('sb-progress-fill').style.width=pct+'%';
+}
+function renderSidebarToday(){
+  const order=['sun','mon','tue','wed','thu','fri','sat'];
+  const labelsFull=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const today=new Date();
+  TODAY_DAY=order[today.getDay()];
+  TODAY_PHASE=detectActivePhase(today)||'houston';
+  TODAY_WEEK=TODAY_PHASE==='houston'?detectHoustonWeek(today):'wa';
+  const dm=TODAY_PHASE==='houston'?houstonWeeks[TODAY_WEEK]:phaseData[TODAY_PHASE].days;
+  const dInfo=dm[TODAY_DAY];
+  const planKey=getDayPlanKey(TODAY_PHASE,TODAY_WEEK,TODAY_DAY);
+  const plan=dayPlans[planKey];
+  document.getElementById('sb-today-day').textContent=labelsFull[today.getDay()];
+  document.getElementById('sb-today-title').textContent=dInfo.label;
+  document.getElementById('sb-today-sub').textContent=plan?plan.tagDetail:dInfo.badge;
+}
+function goToToday(){
+  setPhase(TODAY_PHASE,document.querySelector(`.phase-btn[data-phase="${TODAY_PHASE}"]`));
+  if(TODAY_PHASE==='houston'){
+    const idx=['wa','wb','rt','pr'].indexOf(TODAY_WEEK);
+    setWeek(TODAY_WEEK,document.querySelectorAll('.sub-tab')[idx]);
+  }
+  showDay(TODAY_DAY);
+}
+function renderSidebarWeek(){
+  const order=['mon','tue','wed','thu','fri','sat','sun'];
+  const labels=['L','M','X','J','V','S','D'];
+  const dm=getCurrentDayMap();
+  document.getElementById('sb-week-list').innerHTML=order.map((d,i)=>{
+    const isToday=d===TODAY_DAY&&currentPhase===TODAY_PHASE&&(currentPhase!=='houston'||currentWeek===TODAY_WEEK);
+    return `<div class="sb-week-row ${isToday?'today':''}" onclick="showDay('${d}')"><span class="sb-wd-lbl">${labels[i]}</span><span class="sb-wd-name">${dm[d].label}</span><span class="sb-wd-dot">${dm[d].badge}</span></div>`;
+  }).join('');
+}
+
+function renderMetricsList(){
+  const wrap=document.getElementById('metrics-list');
+  if(!wrap)return;
+  wrap.innerHTML=metricDefs.map(d=>{
+    const v=metrics[d.key];
+    const status=metricStatus(d,v);
+    let pct=d.inverse?Math.max(20,Math.min(100,100-((v-d.target)*8))):Math.max(5,Math.min(100,(v/d.target)*100));
+    const stCls=status==='ok'?'st-ok':status==='warn'?'st-warn':'st-crit';
+    const stTxt=status==='ok'?`${Math.round(pct)}% del objetivo · cubierto`:status==='warn'?`${Math.round(pct)}% del objetivo · en límite`:`${Math.round(pct)}% del objetivo · déficit`;
+    const valStr=d.decimals===0?v.toLocaleString():v.toFixed(d.decimals);
+    const tag=d.priority==='p1'?'Prioridad 1':d.priority==='p2'?'Prioridad 2':d.priority==='p3'?'Prioridad 3':'Cubierto';
+    return `<div class="metric-row"><div class="metric-hdr"><span class="metric-name">${d.label} <span class="priority-tag ${d.priority}">${tag}</span></span><span class="metric-vals">${valStr} ${d.unit} → ${d.target} ${d.unit}</span></div><div class="metric-bar-bg"><div class="metric-bar-fill" style="width:${pct}%;background:${statusColor(status)}"></div></div><div class="metric-status ${stCls}">${stTxt}</div><div class="metric-note">${d.note}</div></div>`;
+  }).join('');
+}
+
+function openMetricsModal(){metricDefs.forEach(d=>{const i=document.getElementById('i-'+d.key);if(i)i.value=metrics[d.key];});document.getElementById('metrics-modal').classList.add('open');}
+function closeMetricsModal(){document.getElementById('metrics-modal').classList.remove('open');}
+function saveMetrics(){metricDefs.forEach(d=>{const i=document.getElementById('i-'+d.key);if(i&&i.value!==''){const v=parseFloat(i.value);if(!isNaN(v))metrics[d.key]=v;}});saveMetricsToStorage();renderMetricsList();closeMetricsModal();}
+document.addEventListener('click',e=>{if(e.target.id==='metrics-modal')closeMetricsModal();});
+
+function updateHeader(){
+  const today=new Date();today.setHours(0,0,0,0);
+  document.getElementById('hdr-date').textContent=`${dayNames[today.getDay()]}, ${today.getDate()} de ${months[today.getMonth()]} de ${today.getFullYear()}`;
+  document.getElementById('stat-rotation').textContent=Math.max(0,Math.ceil((HOUSTON_END-today)/86400000));
+  const rd=Math.ceil((RACE_DATE-today)/86400000);
+  document.getElementById('stat-race').textContent=rd>0?rd:'—';
+  document.getElementById('stat-week').textContent=TODAY_PHASE==='houston'?(TODAY_WEEK==='wa'?'A':TODAY_WEEK==='wb'?'B':TODAY_WEEK==='rt'?'Taper':'Post'):'—';
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  loadMetrics();
+  renderPhaseSelector();
+  updateActivePhaseTag();
+  renderSidebarToday();
+  updateHeader();
+  currentPhase=TODAY_PHASE;
+  currentWeek=TODAY_WEEK;
+  currentDay=TODAY_DAY;
+  document.querySelectorAll('.phase-btn').forEach(b=>b.classList.toggle('active',b.dataset.phase===TODAY_PHASE));
+  document.getElementById('houston-subtabs').style.display=TODAY_PHASE==='houston'?'flex':'none';
+  if(TODAY_PHASE==='houston'){
+    const idx=['wa','wb','rt','pr'].indexOf(TODAY_WEEK);
+    document.querySelectorAll('.sub-tab').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  }
+  renderDayTabs();
+  renderSidebarPhase();
+  renderMetricsList();
+  showDay(currentDay);
+});
+
+</script>
+</body>
+</html>
