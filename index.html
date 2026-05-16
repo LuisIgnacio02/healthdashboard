@@ -206,38 +206,20 @@ details.opt-b summary:hover{border-style:solid;background:var(--surface-2)}
   </div>
   <div class="hdr-stats">
     <div class="hdr-stat"><div class="hdr-stat-n" id="stat-rotation">—</div><div class="hdr-stat-l">Days to next phase</div></div>
-    <div class="hdr-stat"><div class="hdr-stat-n" id="stat-race">—</div><div class="hdr-stat-l">Days to race</div></div>
     <div class="hdr-stat"><div class="hdr-stat-n" id="stat-week">A</div><div class="hdr-stat-l">Week</div></div>
   </div>
-  <div><button class="btn btn-g" onclick="openMetricsModal()">Update Metrics</button></div>
 </header>
 <div class="phase-selector" id="phase-selector"></div>
 <div class="main-layout">
   <div class="content-col">
-    <div class="view-tabs">
-      <button class="view-tab active" onclick="setView('plan',this)">Phase Plan</button>
-      <button class="view-tab" onclick="setView('metricas',this)">Bevel Metrics</button>
-    </div>
     <div id="view-plan" class="main-section active">
       <div class="sub-tabs-row" id="houston-subtabs">
         <span class="sub-tabs-label">Week:</span>
         <button class="sub-tab active" onclick="setWeek('wa',this)">A · Upper & Lower A+B</button>
         <button class="sub-tab" onclick="setWeek('wb',this)">B · Lower & Upper B+A</button>
-        <div class="sub-tab-sep"></div>
-        <button class="sub-tab taper" onclick="setWeek('rt',this)">Race Taper · May 25–30</button>
-        <button class="sub-tab post" onclick="setWeek('pr',this)">Post-Race · Jun 1–7</button>
       </div>
       <div class="day-tabs" id="day-tabs"></div>
       <div id="day-content"></div>
-    </div>
-    <div id="view-metricas" class="main-section">
-      <div class="section-header">Bevel Metrics</div>
-      <div class="section-sub">Actual vs Target · Saved locally · <a href="#" onclick="openMetricsModal();return false">Edit values</a></div>
-      <div id="metrics-list"></div>
-      <div class="info-panel" style="margin-top:18px">
-        <div class="info-panel-title">Biological Aging Rate Projection</div>
-        <div class="info-panel-body"><strong>Current:</strong> 1.05–1.10× (accelerated vs. chronological).<br><strong>Houston at six weeks:</strong> drops to 1.00–1.03×.<br><strong>End of Phase 3 (May 2027):</strong> potential 0.95–0.98×.<br><br></div>
-      </div>
     </div>
   </div>
   <div class="sidebar-col">
@@ -262,31 +244,6 @@ details.opt-b summary:hover{border-style:solid;background:var(--surface-2)}
     <div class="sb-block">
       <div class="sb-label">This week</div>
       <div class="sb-week-list" id="sb-week-list"></div>
-    </div>
-    <div class="sb-block">
-      <div class="sb-label">Bevel Metrics</div>
-      <div style="font-size:11px;color:var(--t3);font-family:var(--serif);font-style:italic;line-height:1.55">Editing your actual measurements updates the dashboard and metrics tab with live calculations.</div>
-      <div class="sb-edit-row"><button class="btn btn-g" onclick="openMetricsModal()" style="font-size:9px;padding:5px 10px">Edit values</button></div>
-    </div>
-  </div>
-</div>
-<div class="overlay" id="metrics-modal">
-  <div class="modal">
-    <div class="modal-sup">Update Metrics</div>
-    <div class="modal-title">Current Bevel Values</div>
-    <div class="m-grid">
-      <div class="m-fg"><label class="m-lbl">Steps / day</label><input class="m-input" id="i-steps" type="number" step="100"><span class="m-target">Target: 8,000</span></div>
-      <div class="m-fg"><label class="m-lbl">Zone 2 / week (min)</label><input class="m-input" id="i-z2" type="number"><span class="m-target">Target: 155</span></div>
-      <div class="m-fg"><label class="m-lbl">Zone 4-5 / week (min)</label><input class="m-input" id="i-z5" type="number"><span class="m-target">Target: 12</span></div>
-      <div class="m-fg"><label class="m-lbl">VO₂max</label><input class="m-input" id="i-vo2" type="number" step="0.1"><span class="m-target">Target: 48 ml/kg/min</span></div>
-      <div class="m-fg"><label class="m-lbl">RHR (bpm)</label><input class="m-input" id="i-rhr" type="number"><span class="m-target">Target: under 60</span></div>
-      <div class="m-fg"><label class="m-lbl">HRV / SDNN (ms)</label><input class="m-input" id="i-hrv" type="number"><span class="m-target">Target: 70+</span></div>
-      <div class="m-fg"><label class="m-lbl">Sleep (h)</label><input class="m-input" id="i-sleep" type="number" step="0.1"><span class="m-target">Target: 7.5</span></div>
-      <div class="m-fg"><label class="m-lbl">Strength / week (min)</label><input class="m-input" id="i-strength" type="number"><span class="m-target">Target: 70</span></div>
-    </div>
-    <div class="m-actions">
-      <button class="btn btn-g" onclick="closeMetricsModal()">Cancel</button>
-      <button class="btn btn-p" onclick="saveMetrics()">Save</button>
     </div>
   </div>
 </div>
@@ -435,20 +392,6 @@ const dayPlans = {
   'h-run-tennis':{title:'Run or Tennis',tag:'Choice',tagDetail:'Cardio · your choice',tagClass:'stim-choice',cards:[{type:'z2',tl:'Z2 Run',name:'Option A · Zone 2',sets:'45 min',rpe:'RPE 4-5',rc:'lo',rest:'',note:'5 min walk + 40 min Zone 2 jog + 5 min walk.'},{type:'tennis',tl:'Tenis',name:'Option B · Tennis',sets:'60 min',rpe:'RPE 7-8',rc:'hi',rest:'',note:'Generates Zone 4-5 organically. Add 10 min walk post-tennis to complete Zone 2 volume.'}],optB:'<strong>25 min brisk walk.</strong> Maintains basal aerobic stimulus.'},
   'h-long':{title:'Long Run or Tennis',tag:'Long Run',tagDetail:'60 min · Zone 2',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Warm-up',sets:'10 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:''},{type:'z2',tl:'Z2 Run',name:'Option A · Long Run Zone 2',sets:'60 min',rpe:'RPE 4-5',rc:'lo',rest:'',note:'Walk breaks every 10-15 min are fine.'},{type:'tennis',tl:'Tenis',name:'Option B · Tennis 60 min + 20 min walk',sets:'60 + 20 min',rpe:'RPE 7-8',rc:'hi',rest:'',note:'Total Zone 2 contribution: 35–40 min.'},{type:'walk',tl:'Walk',name:'Cool-down',sets:'10 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:''}],optB:'<strong>45 min brisk walk.</strong> Contributes ~30 min of real Zone 2.'},
   'h-rest':{title:'Rest',tag:'Recovery',tagDetail:'Mobility · 15 min',tagClass:'stim-rest',cards:[{type:'walk',tl:'Mobility',name:'Hip Flexors 90/90',sets:'2 min/lado',rpe:'RPE 0-1',rc:'lo',rest:'Static',note:'Deep hip flexor release.'},{type:'walk',tl:'Mobility',name:'Thoracic Spine',sets:'cat-cow ×10 + rotaciones ×10/lado',rpe:'RPE 0-1',rc:'lo',rest:'Static',note:'Thoracic spine mobility.'},{type:'walk',tl:'Mobility',name:'Hamstrings',sets:'forward fold 90s',rpe:'RPE 0-1',rc:'lo',rest:'Static',note:'Posterior chain stretch.'},{type:'walk',tl:'Mobility',name:'Shoulders',sets:'cross-body + sleeper 90s/lado',rpe:'RPE 0-1',rc:'lo',rest:'Static',note:'Shoulder health.'}]},
-  'h-rt-mon':{title:'Mon May 25 · Upper A Taper',tag:'Taper',tagDetail:'50% volume · RPE 6-7',tagClass:'stim-rest',cards:[{type:'compound',tl:'Compound',name:'DB Incline Press',sets:'2 × 8',rpe:'RPE 6–7',rc:'lo',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'DB One-arm Row',sets:'2 × 8 / arm',rpe:'RPE 6–7',rc:'lo',rest:'Rest 75s',note:''},{type:'compound',tl:'Compound',name:'Cable Lat Pulldown',sets:'2 × 8',rpe:'RPE 6–7',rc:'lo',rest:'Rest 60s',note:''},{type:'isolation',tl:'Isolation',name:'Laterales y Face Pulls',sets:'2 × 12 c/u',rpe:'RPE 6',rc:'lo',rest:'Rest 45s',note:''}],sessionTime:'~30 min'},
-  'h-rt-tue':{title:'Tue May 26 · Shakeout',tag:'Easy Run',tagDetail:'20 min easy + 3 strides',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Warm-up',sets:'8 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:''},{type:'z2',tl:'Z2 Run',name:'Easy Jog',sets:'12 min',rpe:'RPE 4-5',rc:'lo',rest:'',note:''},{type:'hiit',tl:'Strides',name:'Strides @ 80%',sets:'3 × 80m',rpe:'RPE 8-9',rc:'hi',rest:'',note:'Keeps the neuromuscular system primed without generating fatigue.'}]},
-  'h-rt-wed':{title:'Wed May 27 · Lower A Taper',tag:'Taper',tagDetail:'50% volume · RPE 6-7',tagClass:'stim-rest',cards:[{type:'compound',tl:'Compound',name:'Leg Press',sets:'2 × 6',rpe:'RPE 6–7',rc:'lo',rest:'Rest 2 min',note:''},{type:'compound',tl:'Compound',name:'Hip Thrust',sets:'2 × 8',rpe:'RPE 6–7',rc:'lo',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'Back Extension (BW)',sets:'2 × 10',rpe:'RPE 6',rc:'lo',rest:'Rest 60s',note:''},{type:'isolation',tl:'Isolation',name:'Leg Curl',sets:'2 × 8',rpe:'RPE 6',rc:'lo',rest:'Rest 60s',note:''}],sessionTime:'~27 min'},
-  'h-rt-thu':{title:'Thu May 28 · Full Rest',tag:'No Training',tagDetail:'Pre-race rest',tagClass:'stim-rest',cards:[{type:'walk',tl:'Mobility',name:'Light Mobility (optional)',sets:'15 min',rpe:'RPE 0-1',rc:'lo',rest:'Static',note:'No gym, no cardio, no tennis. +500 mL hydration. Minimum 8h sleep.'}]},
-  'h-rt-fri':{title:'Fri May 29 · Upper B Light',tag:'Taper',tagDetail:'RPE 6 · pre-race',tagClass:'stim-rest',cards:[{type:'bw',tl:'BW',name:'Pull-ups',sets:'2 × 5',rpe:'RPE 6',rc:'lo',rest:'Rest 2 min',note:''},{type:'compound',tl:'Compound',name:'DB Flat Bench Press',sets:'2 × 6',rpe:'RPE 6–7',rc:'lo',rest:'Rest 2 min',note:''},{type:'compound',tl:'Compound',name:'DB Overhead Press',sets:'2 × 6',rpe:'RPE 6–7',rc:'lo',rest:'Rest 90s',note:''}],sessionTime:'~22 min · If fatigued: cancel and rest'},
-  'h-rt-sat':{title:'Sat May 30 · 10K Race',tag:'Race Day',tagDetail:'Optional',tagClass:'stim-race',cards:[{type:'walk',tl:'Walk',name:'Warm-up',sets:'10 min trote + 3 strides al 80%',rpe:'RPE 1-2',rc:'lo',rest:'',note:'Race-specific activation.'},{type:'race',tl:'Race',name:'10K',sets:'60 a 68 min target',rpe:'All-out',rc:'hi',rest:'',note:'First 2 km conservative. If you\'re not ready, 45 min easy run is valid. Red flags: dizziness, confusion, stop sweating → stop. Hydrate 500 mL 2h before.'}]},
-  'h-rt-sun':{title:'Sun May 31 · Recovery',tag:'Post-Race',tagDetail:'Recovery',tagClass:'stim-rest',cards:[{type:'walk',tl:'Walk',name:'Easy Walk',sets:'20 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:'Foam roll quads, calves, hamstrings. Protein within 2h. Hydration: 1.5 L per kg lost.'}]},
-  'h-pr-mon':{title:'Mon Jun 1 · Upper B',tag:'Re-entry',tagDetail:'70% intensity · RPE 7',tagClass:'stim-hyper',cards:[{type:'bw',tl:'BW',name:'Pull-ups',sets:'3 × 6',rpe:'RPE 7',rc:'mid',rest:'Rest 2 min',note:'Legs need 5–7 days to fully recover from the race.'},{type:'compound',tl:'Compound',name:'DB Flat Bench Press',sets:'3 × 7',rpe:'RPE 7',rc:'mid',rest:'Rest 2 min',note:''},{type:'compound',tl:'Compound',name:'DB Overhead Press',sets:'3 × 7',rpe:'RPE 7',rc:'mid',rest:'Rest 90s',note:''},{type:'bw',tl:'BW',name:'Chin-ups',sets:'3 × 5',rpe:'RPE 7',rc:'mid',rest:'Rest 90s',note:''},{type:'isolation',tl:'Isolation',name:'Laterales y Hammer Curls',sets:'3 × 10 c/u',rpe:'RPE 7',rc:'mid',rest:'Rest 60s',note:''}],sessionTime:'~45 min'},
-  'h-pr-tue':{title:'Tue Jun 2 · Recovery Run',tag:'Recovery',tagDetail:'30 min · easy Zone 2',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Warm-up',sets:'5 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:''},{type:'z2',tl:'Z2 Run',name:'Very Easy Jog',sets:'25 min',rpe:'RPE 4-5',rc:'lo',rest:'',note:'Slower than normal Zone 2. If legs feel heavy: 30 min brisk walk.'},{type:'walk',tl:'Walk',name:'Cool-down',sets:'5 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:''}]},
-  'h-pr-wed':{title:'Wed Jun 3 · Lower B',tag:'Re-entry',tagDetail:'70% intensity · RPE 7',tagClass:'stim-hyper',cards:[{type:'compound',tl:'Compound',name:'Leg Press (light)',sets:'3 × 10',rpe:'RPE 7',rc:'mid',rest:'Rest 90s',note:'If DOMS: drop to RPE 6.'},{type:'compound',tl:'Compound',name:'Hip Thrust (2s pause)',sets:'3 × 10',rpe:'RPE 7',rc:'mid',rest:'Rest 75s',note:''},{type:'compound',tl:'Compound',name:'Walking Lunges',sets:'3 × 10 / leg',rpe:'RPE 7',rc:'mid',rest:'Rest 75s',note:''},{type:'isolation',tl:'Isolation',name:'Seated Leg Curl',sets:'3 × 10',rpe:'RPE 7',rc:'mid',rest:'Rest 60s',note:''}],sessionTime:'~40 min'},
-  'h-pr-thu':{title:'Thu Jun 4 · Run',tag:'Easy Run',tagDetail:'30 min · recovery',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Warm-up',sets:'5 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:''},{type:'z2',tl:'Z2 Run',name:'Zone 2 Jog',sets:'25 min',rpe:'RPE 4-5',rc:'lo',rest:'',note:'Alternative: 45 min tennis if legs feel fine.'},{type:'walk',tl:'Walk',name:'Cool-down',sets:'5 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:''}]},
-  'h-pr-fri':{title:'Fri Jun 5 · Upper A',tag:'Re-entry',tagDetail:'85% intensity · RPE 7-8',tagClass:'stim-hyper',cards:[{type:'compound',tl:'Compound',name:'DB Incline Press',sets:'3 × 10',rpe:'RPE 7–8',rc:'mid',rest:'Rest 90s',note:''},{type:'compound',tl:'Compound',name:'DB One-arm Row',sets:'3 × 10 / arm',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:''},{type:'compound',tl:'Compound',name:'Cable Lat Pulldown',sets:'3 × 10',rpe:'RPE 7–8',rc:'mid',rest:'Rest 75s',note:''},{type:'isolation',tl:'Isolation',name:'Laterales y Face Pulls',sets:'3 × 12 c/u',rpe:'RPE 8',rc:'hi',rest:'Rest 60s',note:''}],sessionTime:'~42 min'},
-  'h-pr-sat':{title:'Sat Jun 6 · Long Run',tag:'Long Run',tagDetail:'50 min · Zone 2',tagClass:'stim-z2',cards:[{type:'walk',tl:'Walk',name:'Warm-up',sets:'10 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:''},{type:'z2',tl:'Z2 Run',name:'Recovery Long Run',sets:'40 min',rpe:'RPE 4-5',rc:'lo',rest:'',note:'Más corto que long run normal.'},{type:'walk',tl:'Walk',name:'Cool-down',sets:'10 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:''}]},
-  'h-pr-sun':{title:'Sun Jun 7 · Rest',tag:'Recovery',tagDetail:'Mobility · 15 min',tagClass:'stim-rest',cards:[{type:'walk',tl:'Mobility',name:'Full Mobility',sets:'15 min',rpe:'RPE 0-1',rc:'lo',rest:'Static',note:'Next week back to 100%.'}]},
   'f1-mon':{title:'Monday · Upper A',tag:'Hypertrophy',tagDetail:'RPE 7-8 · maintenance',tagClass:'stim-hyper',warmup:{time:'7 min',items:[['Jumping Jacks × 10 + Arm Circles × 10 + Push-ups × 10','4 min'],['Ramp-up: DB Incline ~50%×10 → ~75%×5','2 sets']]},cards:_hUA,sessionTime:'~55 min',optB:'<strong>2 sets each · RPE 6-7 · ~30 min.</strong> Same order, no warm-up ramps.'},
   'f1-tue':{title:'Tuesday · VO₂max Intervals',tag:'HIIT',tagDetail:'Zone 4-5 · 35-45 min',tagClass:'stim-hiit',cards:[{type:'walk',tl:'Warm-up',name:'Warm-up',sets:'10 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:'4 strides at 85% at the end.'},{type:'hiit',tl:'HIIT',name:'Option A · 8 × 400m',sets:'8 reps',rpe:'RPE 9-10',rc:'hi',rest:'',note:'Short intervals, maximum sustainable speed.'},{type:'hiit',tl:'HIIT',name:'Option B · 5 × 3 min',sets:'5 reps',rpe:'RPE 9-10',rc:'hi',rest:'',note:'Long intervals, same VO₂max stimulus.'},{type:'hiit',tl:'HIIT',name:'Option C · 6 Hill Sprints',sets:'6 × 30s',rpe:'RPE 9-10',rc:'hi',rest:'',note:'If you have hilly terrain.'},{type:'walk',tl:'Cool-down',name:'Cool-down',sets:'8 min',rpe:'RPE 1-2',rc:'lo',rest:'',note:''}],optB:'<strong>30 min steady Zone 2.</strong> Don\'t skip the session, just lower the intensity.'},
   'f1-wed':{title:'Wednesday · Lower A',tag:'Strength',tagDetail:'RPE 8-9 · maintenance',tagClass:'stim-strength',warmup:{time:'7 min',items:[['BW Squats × 15 + Lunges × 10/leg + Leg Swings + Glute Bridges × 15','4 min'],['Ramp-up: Leg Press ~50%×10 → ~75%×5','2 sets']]},cards:_hLA,sessionTime:'~55 min',optB:'<strong>2 sets each · RPE 6-7 · ~28 min.</strong> Same order.'},
@@ -479,24 +422,15 @@ const dayPlans = {
   'f4-sun':{title:'Sunday · Tennis or Rest',tag:'Choice',tagDetail:'Session 4 of 4 · optional',tagClass:'stim-choice',cards:[{type:'tennis',tl:'Tenis',name:'Casual Tennis (Session 4)',sets:'60 min',rpe:'RPE 7-8',rc:'hi',rest:'',note:'Fourth weekly tennis session if recovery allows.'},{type:'walk',tl:'Walk',name:'Walk + Mobility',sets:'30-45 min walk + 15 min mobility',rpe:'RPE 1-2',rc:'lo',rest:'',note:'Recovery alternative.'}],optB:'<strong>15 min mobility + 20 min walk.</strong> Already an optional light day.'}
 };
 
-const metricDefs=[{key:'steps',label:'Daily steps',target:8000,unit:'pasos',inverse:false,decimals:0,priority:'p2',shortLbl:'Steps',note:'Runs contribute ~5,000 steps. 2 brisk 10-min walks cover the gap.'},{key:'z2',label:'Weekly Zone 2',target:155,unit:'min',inverse:false,decimals:0,priority:'p1',shortLbl:'Z2/sem',note:'Houston: 45+45+60 = 150 min. VO₂max improves in 4-6 weeks.'},{key:'z5',label:'Weekly Zone 4-5',target:12,unit:'min',inverse:false,decimals:0,priority:'p3',shortLbl:'Z5/sem',note:'One tennis session generates 20-25 min of Z4-5.'},{key:'vo2',label:'VO₂max',target:48,unit:'ml/kg/min',inverse:false,decimals:1,priority:'p1',shortLbl:'VO₂max',note:'+10% in 10 weeks of 150+ min/week Zone 2. Target reached in Phase 1.'},{key:'rhr',label:'RHR',target:60,unit:'bpm',inverse:true,decimals:0,priority:'p2',shortLbl:'RHR',note:'-1 bpm per 10 extra min/week of Zone 2.'},{key:'hrv',label:'HRV · SDNN',target:70,unit:'ms',inverse:false,decimals:0,priority:'p3',shortLbl:'HRV',note:'Downstream of Zone 2 + sleep. Track weekly trend.'},{key:'sleep',label:'Sleep',target:7.5,unit:'h',inverse:false,decimals:1,priority:'p-ok',shortLbl:'Sleep',note:'Only metric currently met. Consistency 86%.'},{key:'strength',label:'Strength (min/wk)',target:70,unit:'min',inverse:false,decimals:0,priority:'p-ok',shortLbl:'Strength',note:'3 sessions × 55 min = 165. Met in every phase.'}];
-const STORAGE_KEY='health-dashboard-metrics-v3';
-const defaults={steps:6000,z2:38,z5:18,vo2:41,rhr:60,hrv:60,sleep:7.5,strength:90};
-let metrics={...defaults};
-function loadMetrics(){try{const s=localStorage.getItem(STORAGE_KEY);if(s)metrics={...defaults,...JSON.parse(s)};}catch(e){}}
-function saveMetricsToStorage(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(metrics));}catch(e){}}
-function metricStatus(d,v){if(d.inverse){if(v<d.target)return'ok';if(v<=d.target+5)return'warn';return'crit';}const p=v/d.target;if(p>=1)return'ok';if(p>=0.7)return'warn';return'crit';}
-function statusColor(s){return s==='ok'?'var(--green)':s==='warn'?'var(--gold)':'var(--red)';}
 
 let currentPhase='houston',currentWeek='wa',currentDay='mon',currentView='plan';
 let TODAY_PHASE='houston',TODAY_WEEK='wa',TODAY_DAY='mon';
-const RACE_DATE=new Date('2026-05-30');
 const HOUSTON_END=new Date('2026-08-01');
 const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 function detectActivePhase(today){for(const k of Object.keys(phaseData)){const p=phaseData[k];if(today>=new Date(p.startDate)&&today<new Date(p.endDate))return k;}return null;}
-function detectHoustonWeek(today){const WB=new Date('2026-05-18'),RT=new Date('2026-05-25'),PR=new Date('2026-06-01'),A2=new Date('2026-06-08'),B2=new Date('2026-06-15');if(today>=B2)return'wb';if(today>=A2)return'wa';if(today>=PR)return'pr';if(today>=RT)return'rt';if(today>=WB)return'wb';return'wa';}
+function detectHoustonWeek(today){const WB=new Date('2026-05-18'),A2=new Date('2026-06-08'),B2=new Date('2026-06-15');if(today>=B2)return'wb';if(today>=A2)return'wa';if(today>=WB)return'wb';return'wa';}
 
 function renderPhaseSelector(){
   const wrap=document.getElementById('phase-selector');
@@ -527,8 +461,6 @@ function getDayPlanKey(phase,week,day){
     if(week==='wb'&&day==='mon')return'h-lower-b';
     if(week==='wb'&&day==='wed')return'h-upper-a';
     if(week==='wb'&&day==='fri')return'h-lower-a';
-    if(week==='rt')return'h-rt-'+day;
-    if(week==='pr')return'h-pr-'+day;
   }
   return phase+'-'+day;
 }
@@ -637,37 +569,14 @@ function renderSidebarWeek(){
   }).join('');
 }
 
-function renderMetricsList(){
-  const wrap=document.getElementById('metrics-list');
-  if(!wrap)return;
-  wrap.innerHTML=metricDefs.map(d=>{
-    const v=metrics[d.key];
-    const status=metricStatus(d,v);
-    let pct=d.inverse?Math.max(20,Math.min(100,100-((v-d.target)*8))):Math.max(5,Math.min(100,(v/d.target)*100));
-    const stCls=status==='ok'?'st-ok':status==='warn'?'st-warn':'st-crit';
-    const stTxt=status==='ok'?`${Math.round(pct)}% del objetivo · cubierto`:status==='warn'?`${Math.round(pct)}% del objetivo · en límite`:`${Math.round(pct)}% del objetivo · déficit`;
-    const valStr=d.decimals===0?v.toLocaleString():v.toFixed(d.decimals);
-    const tag=d.priority==='p1'?'Priority 1':d.priority==='p2'?'Priority 2':d.priority==='p3'?'Priority 3':'Covered';
-    return `<div class="metric-row"><div class="metric-hdr"><span class="metric-name">${d.label} <span class="priority-tag ${d.priority}">${tag}</span></span><span class="metric-vals">${valStr} ${d.unit} → ${d.target} ${d.unit}</span></div><div class="metric-bar-bg"><div class="metric-bar-fill" style="width:${pct}%;background:${statusColor(status)}"></div></div><div class="metric-status ${stCls}">${stTxt}</div><div class="metric-note">${d.note}</div></div>`;
-  }).join('');
-}
-
-function openMetricsModal(){metricDefs.forEach(d=>{const i=document.getElementById('i-'+d.key);if(i)i.value=metrics[d.key];});document.getElementById('metrics-modal').classList.add('open');}
-function closeMetricsModal(){document.getElementById('metrics-modal').classList.remove('open');}
-function saveMetrics(){metricDefs.forEach(d=>{const i=document.getElementById('i-'+d.key);if(i&&i.value!==''){const v=parseFloat(i.value);if(!isNaN(v))metrics[d.key]=v;}});saveMetricsToStorage();renderMetricsList();closeMetricsModal();}
-document.addEventListener('click',e=>{if(e.target.id==='metrics-modal')closeMetricsModal();});
-
 function updateHeader(){
   const today=new Date();today.setHours(0,0,0,0);
   document.getElementById('hdr-date').textContent=`${dayNames[today.getDay()]}, ${months[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
   document.getElementById('stat-rotation').textContent=Math.max(0,Math.ceil((HOUSTON_END-today)/86400000));
-  const rd=Math.ceil((RACE_DATE-today)/86400000);
-  document.getElementById('stat-race').textContent=rd>0?rd:'—';
-  document.getElementById('stat-week').textContent=TODAY_PHASE==='houston'?(TODAY_WEEK==='wa'?'A':TODAY_WEEK==='wb'?'B':TODAY_WEEK==='rt'?'Taper':'Post'):'—';
+  document.getElementById('stat-week').textContent=TODAY_PHASE==='houston'?(TODAY_WEEK==='wa'?'A':'B'):'—';
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
-  loadMetrics();
   renderPhaseSelector();
   updateActivePhaseTag();
   renderSidebarToday();
@@ -678,12 +587,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('.phase-btn').forEach(b=>b.classList.toggle('active',b.dataset.phase===TODAY_PHASE));
   document.getElementById('houston-subtabs').style.display=TODAY_PHASE==='houston'?'flex':'none';
   if(TODAY_PHASE==='houston'){
-    const idx=['wa','wb','rt','pr'].indexOf(TODAY_WEEK);
+    const idx=['wa','wb'].indexOf(TODAY_WEEK);
     document.querySelectorAll('.sub-tab').forEach((b,i)=>b.classList.toggle('active',i===idx));
   }
   renderDayTabs();
   renderSidebarPhase();
-  renderMetricsList();
   showDay(currentDay);
 });
 
